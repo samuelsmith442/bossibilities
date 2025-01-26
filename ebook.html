@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>eBooks - Creativity with Bossibilities</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" type="image/png" href="images/site-image.png">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&family=Playfair+Display:wght@400;500;600&display=swap" rel="stylesheet">
+    <script async src="https://js.stripe.com/v3/buy-button.js"></script>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="hamburger">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+        <ul>
+            <li><a href="index.html">Home Page</a></li>
+            <li><a href="about.html">About Us</a></li>
+            <li><a href="gallery.html">Gallery</a></li>
+            <li><a href="contact.html">Contact Us</a></li>
+            <li><a href="history.html">History</a></li>
+            <li><a href="ebook.html" class="active">Ebook</a></li>
+        </ul>
+    </nav>
+    <div class="menu-overlay"></div>
+
+    <main class="main-content">
+        <section class="ebook-section">
+            <div class="ebook-grid">
+                <div class="ebook-card">
+                    <div class="ebook-category">CLASSIC MINIMALIST PLANNER</div>
+                    <div class="ebook-image">
+                        <img src="images/planner.png" alt="Classic Minimalist 2024 Annual Planner">
+                    </div>
+                    <div class="ebook-content">
+                        <h3>Classic Minimalist 2024 Annual Planner</h3>
+                        <div class="rating">
+                            <span class="star">☆</span>
+                            <span class="star">☆</span>
+                            <span class="star">☆</span>
+                            <span class="star">☆</span>
+                            <span class="star">☆</span>
+                        </div>
+                        <div class="price">$99.99</div>
+                        <stripe-buy-button
+                            buy-button-id="buy_btn_1QjEsZHmoFbA75bcZJJABZvd"
+                            publishable-key="pk_live_51QjCsvHmoFbA75bcQ3vhJIpSQtNBEQsqnsK49mrBKuNquwUbsjtL9bL5Z6XvFIEu26M1b53XZPWb6n5TZJMPmpae00UCxQP1xr"
+                        >
+                        </stripe-buy-button>
+                    </div>
+                </div>
+
+                <div class="ebook-card">
+                    <div class="ebook-category">MENS 7 DAY MENTAL E-BOOK</div>
+                    <div class="ebook-image">
+                        <img src="images/MENS-7-DAY-MENTAL-E-BOOK-2-192x300.png" alt="MENS 7 DAY MENTAL E-BOOK">
+                    </div>
+                    <div class="ebook-content">
+                        <h3>MENS 7 DAY MENTAL E-BOOK</h3>
+                        <div class="rating">
+                            <span class="star">☆</span>
+                            <span class="star">☆</span>
+                            <span class="star">☆</span>
+                            <span class="star">☆</span>
+                            <span class="star">☆</span>
+                        </div>
+                        <div class="price">$59.99</div>
+                        <stripe-buy-button
+                            buy-button-id="buy_btn_1QjF7rHmoFbA75bcffLbaRS7"
+                            publishable-key="pk_live_51QjCsvHmoFbA75bcQ3vhJIpSQtNBEQsqnsK49mrBKuNquwUbsjtL9bL5Z6XvFIEu26M1b53XZPWb6n5TZJMPmpae00UCxQP1xr"
+                            success-url="https://creativitywithbossibilities.com/success.html"
+                            cancel-url="https://creativitywithbossibilities.com/ebook.html"
+                        >
+                        </stripe-buy-button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <footer>
+            <div class="footer-content">
+                <div class="quick-links">
+                    <h3>Quick Links</h3>
+                    <ul>
+                        <li><a href="index.html">Home Page</a></li>
+                        <li><a href="about.html">About Us</a></li>
+                        <li><a href="#">Gallery</a></li>
+                        <li><a href="contact.html">Contact Us</a></li>
+                        <li><a href="history.html">History</a></li>
+                        <li><a href="ebook.html">Ebook</a></li>
+                    </ul>
+                </div>
+                <div class="contact-info">
+                    <h3>Contact Info</h3>
+                    <p>44 Darby's Crossing Dr Ste 202D Hiram Ga 30141</p>
+                    <p>470-660-4300</p>
+                    <p>Fax Number: 404-595-2829</p>
+                    <p>email: info@creativitywithbossibilities.com</p>
+                </div>
+                <div class="newsletter">
+                    <h3>Join Our Newsletter</h3>
+                    <p>Sign up for our newsletter to enjoy free marketing tips, inspirations, and more.</p>
+                    <div class="newsletter-form">
+                        <input type="email" placeholder="Email Address">
+                        <button>Sign Me Up</button>
+                    </div>
+                </div>
+            </div>
+            <div class="copyright">
+                <p> 2025 Younic. All Rights Reserved</p>
+            </div>
+        </footer>
+    </main>
+
+    <script src="main.js"></script>
+</body>
+</html>

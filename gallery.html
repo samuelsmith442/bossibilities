@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Gallery - Creativity with Bossibilities</title>
+    <link rel="stylesheet" href="style.css" />
+    <link rel="icon" type="image/png" href="images/site-image.png" />
+  </head>
+  <body>
+    <nav class="navbar">
+      <div class="hamburger">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+      <ul>
+        <li><a href="index.html">Home Page</a></li>
+        <li><a href="about.html">About Us</a></li>
+        <li><a href="gallery.html" class="active">Gallery</a></li>
+        <li><a href="contact.html">Contact Us</a></li>
+        <li><a href="history.html">History</a></li>
+        <li><a href="ebook.html">Ebook</a></li>
+      </ul>
+    </nav>
+    <div class="menu-overlay"></div>
+
+    <main class="main-content">
+      <section class="gallery-section">
+        <div class="gallery-header">
+          <img
+            src="images/gallery.png"
+            alt="Gallery"
+            class="gallery-image slide-in-right"
+          />
+        </div>
+
+        <div class="gallery-grid slide-in-right">
+          <div class="gallery-item">
+            <picture>
+              <img 
+                src="images/massage-parlor.jpeg" 
+                alt="Massage Parlor" 
+                class="gallery-item-image"
+                loading="lazy"
+                decoding="async"
+              >
+            </picture>
+          </div>
+
+          <h2 class="gallery-section-title slide-in-left">
+            MENTORSHIP TO YOUNG LADIES WEEKEND GATEWAY PROGRAM NO AGE IS TOO YOUNG TO START A BUSINESS FOR ANYONE.
+          </h2>
+
+          <div class="carousel-container">
+            <div class="carousel-track">
+              <div class="carousel-slide">
+                <img 
+                  src="images/image-1.jpg" 
+                  alt="Mentorship Program Image 1" 
+                  class="carousel-image"
+                  onerror="this.style.display='none'"
+                >
+              </div>
+              <div class="carousel-slide">
+                <img 
+                  src="images/image-2.jpg" 
+                  alt="Mentorship Program Image 2" 
+                  class="carousel-image"
+                  onerror="this.style.display='none'"
+                >
+              </div>
+              <div class="carousel-slide">
+                <img 
+                  src="images/image-3.jpg" 
+                  alt="Mentorship Program Image 3" 
+                  class="carousel-image"
+                  onerror="this.style.display='none'"
+                >
+              </div>
+              <div class="carousel-slide">
+                <img 
+                  src="images/image-4.jpg" 
+                  alt="Mentorship Program Image 4" 
+                  class="carousel-image"
+                  onerror="this.style.display='none'"
+                >
+              </div>
+            </div>
+            
+            <button class="carousel-button prev" aria-label="Previous slide">❮</button>
+            <button class="carousel-button next" aria-label="Next slide">❯</button>
+            
+            <div class="carousel-dots">
+              <span class="dot active" data-index="0"></span>
+              <span class="dot" data-index="1"></span>
+              <span class="dot" data-index="2"></span>
+              <span class="dot" data-index="3"></span>
+            </div>
+          </div>
+
+          <section class="community-events">
+            <h2 class="gallery-section-title slide-in-left">
+              GIVING BACK TO THE COMMUNITY: TRUNK OR TREAT
+            </h2>
+            <div class="event-images">
+                <div class="event-image">
+                    <img src="images/image-5.jpg" alt="Trunk or Treat Event 1" loading="lazy">
+                </div>
+                <div class="event-image">
+                    <img src="images/image-6.jpg" alt="Trunk or Treat Event 2" loading="lazy">
+                </div>
+                <div class="event-image">
+                    <img src="images/image-7.jpg" alt="Trunk or Treat Event 3" loading="lazy">
+                </div>
+            </div>
+          </section>
+        </div>
+      </section>
+
+      <footer>
+        <div class="footer-content">
+          <div class="quick-links">
+            <h3>Quick Links</h3>
+            <ul>
+              <li><a href="index.html">Home Page</a></li>
+              <li><a href="about.html">About Us</a></li>
+              <li><a href="gallery.html">Gallery</a></li>
+              <li><a href="contact.html">Contact Us</a></li>
+              <li><a href="history.html">History</a></li>
+              <li><a href="ebook.html">Ebook</a></li>
+            </ul>
+          </div>
+          <div class="contact-info">
+            <h3>Contact Info</h3>
+            <p>44 Darby's Crossing Dr Ste 202D Hiram Ga 30141</p>
+            <p>470-660-4300</p>
+            <p>Fax Number: 404-595-2829</p>
+            <p>email: info@creativitywithbossibilities.com</p>
+          </div>
+          <div class="newsletter">
+            <h3>Join Our Newsletter</h3>
+            <p>
+              Sign up for our newsletter to enjoy free marketing tips,
+              inspirations, and more.
+            </p>
+            <div class="newsletter-form">
+              <input type="email" placeholder="Email Address" />
+              <button>Sign Me Up</button>
+            </div>
+          </div>
+        </div>
+        <div class="copyright">
+          <p>
+            &copy; 2025 creativitywithbossibilities.com All Rights Reserved.
+          </p>
+        </div>
+      </footer>
+    </main>
+
+    <script src="main.js"></script>
+  </body>
+</html>

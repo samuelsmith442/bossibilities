@@ -1,0 +1,24 @@
+{
+  "name": "bossibilities",
+  "version": "1.0.0",
+  "description": "Creativity with Bossibilities eBook Store",
+  "main": "server.js",
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "dependencies": {
+    "express": "^4.21.2",
+    "stripe": "^14.25.0",
+    "dotenv": "^16.3.1",
+    "@aws-sdk/client-s3": "^3.0.0",
+    "@aws-sdk/s3-request-presigner": "^3.0.0",
+    "cors": "^2.8.5"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.22"
+  }
+}
