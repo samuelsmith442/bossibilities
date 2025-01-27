@@ -109,10 +109,28 @@
             canvas = document.getElementById('pdf-viewer'),
             ctx = canvas.getContext('2d');
 
-        // Get PDF URL from query parameter
+        // Get book ID from query parameter
         const urlParams = new URLSearchParams(window.location.search);
-        const pdfUrl = urlParams.get('url');
-        console.log('PDF URL:', pdfUrl);
+        const bookId = urlParams.get('bookId');
+        console.log('Book ID:', bookId);
+
+        // Load the PDF from our proxy endpoint
+        if (bookId) {
+            console.log('Attempting to load PDF for book:', bookId);
+            const pdfUrl = `/api/view-pdf/${bookId}`;
+            pdfjsLib.getDocument(pdfUrl).promise.then(function(pdfDoc_) {
+                console.log('PDF loaded successfully');
+                pdfDoc = pdfDoc_;
+                document.getElementById('page-count').textContent = pdfDoc.numPages;
+                renderPage(pageNum);
+            }).catch(function(error) {
+                console.error('Error loading PDF:', error);
+                alert('Error loading the PDF. Please try again.');
+            });
+        } else {
+            console.error('No book ID provided');
+            alert('No book ID provided. Please try again.');
+        }
 
         function renderPage(num) {
             pageRendering = true;
@@ -167,23 +185,6 @@
             }
             pageNum++;
             queueRenderPage(pageNum);
-        }
-
-        // Load the PDF
-        if (pdfUrl) {
-            console.log('Attempting to load PDF from URL:', pdfUrl);
-            pdfjsLib.getDocument(pdfUrl).promise.then(function(pdfDoc_) {
-                console.log('PDF loaded successfully');
-                pdfDoc = pdfDoc_;
-                document.getElementById('page-count').textContent = pdfDoc.numPages;
-                renderPage(pageNum);
-            }).catch(function(error) {
-                console.error('Error loading PDF:', error);
-                alert('Error loading the PDF. Please try again.');
-            });
-        } else {
-            console.error('No PDF URL provided');
-            alert('No PDF URL provided. Please try again.');
         }
 
         document.getElementById('prev').addEventListener('click', onPrevPage);

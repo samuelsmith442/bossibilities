@@ -75,6 +75,35 @@ app.get('/api/ebook/:bookId', async (req, res) => {
     }
 });
 
+// Proxy endpoint for PDF viewing
+app.get('/api/view-pdf/:bookId', async (req, res) => {
+    try {
+        const { bookId } = req.params;
+        console.log('Attempting to stream PDF:', bookId);
+        
+        const command = new GetObjectCommand({
+            Bucket: process.env.AWS_BUCKET_NAME,
+            Key: 'mens-7-day-mental-ebook-final3.pdf'
+        });
+
+        const response = await s3Client.send(command);
+        
+        // Set appropriate headers
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Disposition', 'inline');
+        res.setHeader('Access-Control-Allow-Origin', '*');
+        
+        // Stream the PDF directly to the response
+        response.Body.pipe(res);
+    } catch (error) {
+        console.error('Error streaming PDF:', error);
+        res.status(500).json({ 
+            error: 'Failed to stream PDF',
+            details: error.message 
+        });
+    }
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
