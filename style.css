@@ -1460,6 +1460,28 @@ stripe-buy-button {
     background-color: var(--button-primary-hover);
 }
 
+.download-button {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    margin-top: 10px;
+    background-color: #4a90e2;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+}
+
+.download-button:hover {
+    background-color: #357abd;
+}
+
+.download-button:active {
+    background-color: #2a5f9e;
+}
+
 @media (max-width: 768px) {
     .ebook-grid {
         grid-template-columns: minmax(250px, 400px);

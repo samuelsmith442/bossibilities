@@ -46,21 +46,32 @@ app.get('/success', (req, res) => {
 app.get('/api/ebook/:bookId', async (req, res) => {
     try {
         const { bookId } = req.params;
+        console.log('Attempting to download book:', bookId);
+        console.log('AWS Config:', {
+            region: process.env.AWS_REGION,
+            bucket: process.env.AWS_BUCKET_NAME
+        });
         
         // Verify purchase/access rights here
         
         const command = new GetObjectCommand({
             Bucket: process.env.AWS_BUCKET_NAME,
-            Key: `ebooks/${bookId}.pdf`
+            Key: 'mens-7-day-mental-ebook-final3.pdf' // Updated to match the actual file name
         });
+
+        console.log('Generated S3 command:', command);
 
         // Generate a pre-signed URL that expires in 1 hour
         const signedUrl = await getSignedUrl(s3Client, command, { expiresIn: 3600 });
+        console.log('Generated signed URL successfully');
         
         res.json({ downloadUrl: signedUrl });
     } catch (error) {
-        console.error('Error generating download URL:', error);
-        res.status(500).json({ error: 'Failed to generate download URL' });
+        console.error('Error in /api/ebook/:bookId:', error);
+        res.status(500).json({ 
+            error: 'Failed to generate download URL',
+            details: error.message 
+        });
     }
 });
 

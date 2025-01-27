@@ -1,3 +1,27 @@
+// Ebook download functionality
+async function downloadEbook(bookId) {
+    try {
+        const response = await fetch(`/api/ebook/${bookId}`);
+        const data = await response.json();
+        
+        if (data.downloadUrl) {
+            // Create a temporary link and trigger download
+            const link = document.createElement('a');
+            link.href = data.downloadUrl;
+            link.download = `mens-7-day-mental-ebook.pdf`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        } else {
+            console.error('Download URL not found');
+            alert('Error downloading the ebook. Please try again.');
+        }
+    } catch (error) {
+        console.error('Error downloading ebook:', error);
+        alert('Error downloading the ebook. Please try again.');
+    }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     // Mobile menu functionality
     const hamburger = document.querySelector('.hamburger');
@@ -236,4 +260,12 @@ document.addEventListener('DOMContentLoaded', () => {
     if (carousel) {
         initCarousel();
     }
+
+    // Add event listener for ebook download
+    document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('download-ebook')) {
+            const bookId = e.target.dataset.bookId;
+            downloadEbook(bookId);
+        }
+    });
 });
