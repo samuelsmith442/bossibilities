@@ -1,3 +1,5 @@
+import { API_URL } from './js/config.js';
+
 // Ebook download functionality
 async function downloadEbook(bookId) {
     try {

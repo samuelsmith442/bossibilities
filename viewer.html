@@ -119,7 +119,9 @@
         </div>
     </main>
 
-    <script>
+    <script type="module">
+        import { API_URL } from './js/config.js';
+        
         // Initialize PDF.js
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
@@ -164,7 +166,8 @@
         // Load the PDF from our proxy endpoint
         if (bookId) {
             console.log('Attempting to load PDF for book:', bookId);
-            const pdfUrl = `/api/view-pdf/${bookId}`;
+            const pdfUrl = `${API_URL}/api/view-pdf/${bookId}`;
+            console.log('PDF URL:', pdfUrl);
             pdfjsLib.getDocument(pdfUrl).promise.then(function(pdfDoc_) {
                 console.log('PDF loaded successfully');
                 pdfDoc = pdfDoc_;
