@@ -10,7 +10,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <style>
         .pdf-container {
-            max-width: 1000px;
+            max-width: 1200px;
             margin: 20px auto;
             padding: 20px;
             background: white;
@@ -19,16 +19,18 @@
         
         #pdf-viewer {
             width: 100%;
-            height: 800px;
             border: 1px solid #ddd;
             margin: 20px 0;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
         }
         
         .controls {
             display: flex;
             justify-content: center;
+            align-items: center;
             gap: 20px;
             margin: 20px 0;
+            flex-wrap: wrap;
         }
         
         .controls button {
@@ -39,6 +41,7 @@
             border-radius: 4px;
             cursor: pointer;
             font-size: 16px;
+            min-width: 120px;
         }
         
         .controls button:hover {
@@ -58,9 +61,23 @@
         }
         
         #page-num {
-            width: 50px;
+            width: 60px;
             text-align: center;
-            padding: 5px;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .zoom-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .zoom-level {
+            font-size: 16px;
+            min-width: 80px;
+            text-align: center;
         }
     </style>
 </head>
@@ -85,13 +102,18 @@
     <main class="main-content">
         <div class="pdf-container">
             <div class="controls">
-                <button id="prev">Previous</button>
+                <button id="prev">◀ Previous</button>
                 <div class="page-info">
                     <span>Page</span>
                     <input type="number" id="page-num">
                     <span>of <span id="page-count"></span></span>
                 </div>
-                <button id="next">Next</button>
+                <button id="next">Next ▶</button>
+                <div class="zoom-controls">
+                    <button id="zoom-out">🔍 -</button>
+                    <span class="zoom-level">100%</span>
+                    <button id="zoom-in">🔍 +</button>
+                </div>
             </div>
             <canvas id="pdf-viewer"></canvas>
         </div>
@@ -105,9 +127,34 @@
             pageNum = 1,
             pageRendering = false,
             pageNumPending = null,
-            scale = 1.5,
+            scale = 2.0, // Increased initial scale for better quality
             canvas = document.getElementById('pdf-viewer'),
             ctx = canvas.getContext('2d');
+
+        // Add zoom control variables
+        const minScale = 0.5;
+        const maxScale = 4.0;
+        const zoomStep = 0.25;
+
+        function updateZoomLevel() {
+            document.querySelector('.zoom-level').textContent = `${Math.round(scale * 100)}%`;
+        }
+
+        function zoomIn() {
+            if (scale < maxScale) {
+                scale += zoomStep;
+                queueRenderPage(pageNum);
+                updateZoomLevel();
+            }
+        }
+
+        function zoomOut() {
+            if (scale > minScale) {
+                scale -= zoomStep;
+                queueRenderPage(pageNum);
+                updateZoomLevel();
+            }
+        }
 
         // Get book ID from query parameter
         const urlParams = new URLSearchParams(window.location.search);
@@ -194,6 +241,27 @@
             if (num && num <= pdfDoc.numPages && num >= 1) {
                 pageNum = num;
                 queueRenderPage(pageNum);
+            }
+        });
+
+        // Add event listeners for zoom controls
+        document.getElementById('zoom-in').addEventListener('click', zoomIn);
+        document.getElementById('zoom-out').addEventListener('click', zoomOut);
+
+        // Add keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey || e.metaKey) {
+                if (e.key === '=' || e.key === '+') {
+                    e.preventDefault();
+                    zoomIn();
+                } else if (e.key === '-') {
+                    e.preventDefault();
+                    zoomOut();
+                }
+            } else if (e.key === 'ArrowRight') {
+                onNextPage();
+            } else if (e.key === 'ArrowLeft') {
+                onPrevPage();
             }
         });
 
