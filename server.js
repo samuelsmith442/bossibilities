@@ -1,17 +1,35 @@
 const express = require('express');
 const path = require('path');
 const cors = require('cors');
-const { GetObjectCommand } = require('@aws-sdk/client-s3');
-const { getSignedUrl } = require('@aws-sdk/s3-request-presigner');
-const s3Client = require('./config/s3');
-
-const app = express();
+const { S3Client, GetObjectCommand } = require("@aws-sdk/client-s3");
+const { getSignedUrl } = require("@aws-sdk/s3-request-presigner");
 require('dotenv').config();
 
-// Middleware
-app.use(cors());
-app.use(express.static(path.join(__dirname)));
+const app = express();
+
+// CORS configuration
+const corsOptions = {
+    origin: process.env.NODE_ENV === 'production'
+        ? ['https://bossibilities.com', 'https://www.bossibilities.com', 'https://test.bossibilities.com']
+        : 'http://localhost:3000',
+    methods: ['GET', 'POST', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true,
+    optionsSuccessStatus: 200
+};
+
+app.use(cors(corsOptions));
 app.use(express.json());
+app.use(express.static(path.join(__dirname)));
+
+// Configure AWS
+const s3Client = new S3Client({
+    region: process.env.AWS_REGION,
+    credentials: {
+        accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
+    }
+});
 
 // Routes for static pages
 app.get('/', (req, res) => {
@@ -100,6 +118,40 @@ app.get('/api/view-pdf/:bookId', async (req, res) => {
         res.status(500).json({ 
             error: 'Failed to stream PDF',
             details: error.message 
+        });
+    }
+});
+
+// Health check endpoints
+app.get('/health', (req, res) => {
+    res.status(200).json({ status: 'OK', timestamp: new Date().toISOString() });
+});
+
+app.get('/api/health', async (req, res) => {
+    try {
+        // Test S3 connection
+        const command = new GetObjectCommand({
+            Bucket: process.env.AWS_BUCKET_NAME,
+            Key: 'mens-7-day-mental-ebook-final3.pdf'
+        });
+        await s3Client.send(command);
+
+        res.status(200).json({
+            status: 'OK',
+            services: {
+                s3: 'Connected',
+                api: 'Running'
+            },
+            timestamp: new Date().toISOString()
+        });
+    } catch (error) {
+        res.status(500).json({
+            status: 'Error',
+            services: {
+                s3: error.message,
+                api: 'Running'
+            },
+            timestamp: new Date().toISOString()
         });
     }
 });
