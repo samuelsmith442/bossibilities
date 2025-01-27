@@ -5,20 +5,15 @@ async function downloadEbook(bookId) {
         const data = await response.json();
         
         if (data.downloadUrl) {
-            // Create a temporary link and trigger download
-            const link = document.createElement('a');
-            link.href = data.downloadUrl;
-            link.download = `mens-7-day-mental-ebook.pdf`;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
+            // Open in viewer instead of downloading
+            window.open(`viewer.html?url=${encodeURIComponent(data.downloadUrl)}`, '_blank');
         } else {
             console.error('Download URL not found');
-            alert('Error downloading the ebook. Please try again.');
+            alert('Error loading the ebook. Please try again.');
         }
     } catch (error) {
-        console.error('Error downloading ebook:', error);
-        alert('Error downloading the ebook. Please try again.');
+        console.error('Error loading ebook:', error);
+        alert('Error loading the ebook. Please try again.');
     }
 }
 
