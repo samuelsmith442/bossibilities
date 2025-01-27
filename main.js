@@ -1,12 +1,16 @@
 // Ebook download functionality
 async function downloadEbook(bookId) {
     try {
+        console.log('Requesting download URL for book:', bookId);
         const response = await fetch(`/api/ebook/${bookId}`);
         const data = await response.json();
+        console.log('Server response:', data);
         
         if (data.downloadUrl) {
-            // Open in viewer instead of downloading
-            window.open(`viewer.html?url=${encodeURIComponent(data.downloadUrl)}`, '_blank');
+            console.log('Opening viewer with URL:', data.downloadUrl);
+            const viewerUrl = `viewer.html?url=${encodeURIComponent(data.downloadUrl)}`;
+            console.log('Viewer URL:', viewerUrl);
+            window.open(viewerUrl, '_blank');
         } else {
             console.error('Download URL not found');
             alert('Error loading the ebook. Please try again.');

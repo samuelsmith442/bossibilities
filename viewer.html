@@ -112,9 +112,11 @@
         // Get PDF URL from query parameter
         const urlParams = new URLSearchParams(window.location.search);
         const pdfUrl = urlParams.get('url');
+        console.log('PDF URL:', pdfUrl);
 
         function renderPage(num) {
             pageRendering = true;
+            console.log('Rendering page:', num);
             pdfDoc.getPage(num).then(function(page) {
                 const viewport = page.getViewport({scale: scale});
                 canvas.height = viewport.height;
@@ -127,12 +129,17 @@
                 const renderTask = page.render(renderContext);
 
                 renderTask.promise.then(function() {
+                    console.log('Page rendered successfully');
                     pageRendering = false;
                     if (pageNumPending !== null) {
                         renderPage(pageNumPending);
                         pageNumPending = null;
                     }
+                }).catch(function(error) {
+                    console.error('Error rendering page:', error);
                 });
+            }).catch(function(error) {
+                console.error('Error getting page:', error);
             });
 
             document.getElementById('page-num').value = num;
@@ -164,11 +171,19 @@
 
         // Load the PDF
         if (pdfUrl) {
+            console.log('Attempting to load PDF from URL:', pdfUrl);
             pdfjsLib.getDocument(pdfUrl).promise.then(function(pdfDoc_) {
+                console.log('PDF loaded successfully');
                 pdfDoc = pdfDoc_;
                 document.getElementById('page-count').textContent = pdfDoc.numPages;
                 renderPage(pageNum);
+            }).catch(function(error) {
+                console.error('Error loading PDF:', error);
+                alert('Error loading the PDF. Please try again.');
             });
+        } else {
+            console.error('No PDF URL provided');
+            alert('No PDF URL provided. Please try again.');
         }
 
         document.getElementById('prev').addEventListener('click', onPrevPage);
