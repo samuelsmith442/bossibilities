@@ -122,16 +122,66 @@ body {
     transition: 0.4s;
 }
 
+/* Hero Section */
 .hero {
-    height: 300px;
     width: 100%;
-    background-image: url('images/hero-banner.png');
-    background-size: cover;
-    background-position: center;
+    height: 300px;
+    overflow: hidden;
+    position: relative;
     border-top: 1px solid var(--black);
     border-bottom: 1px solid var(--black);
+}
+
+.hero-content {
+    width: 100%;
+    height: 100%;
     position: relative;
-    z-index: 1;
+}
+
+.hero-image-wrapper {
+    width: 100%;
+    height: 100%;
+    background-image: url('/images/hero-banner.png');
+    background-size: cover;
+    background-position: center;
+    position: absolute;
+    top: 0;
+    right: 0;
+}
+
+/* Animations */
+.slide-in-right {
+    opacity: 0;
+    transform: translateX(100%);
+    animation: slideInRight 1s ease-out forwards;
+}
+
+.slide-in-left {
+    opacity: 0;
+    transform: translateX(-100%);
+    animation: slideInLeft 1s ease-out forwards;
+}
+
+@keyframes slideInRight {
+    0% {
+        opacity: 0;
+        transform: translateX(100%);
+    }
+    100% {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes slideInLeft {
+    0% {
+        opacity: 0;
+        transform: translateX(-100%);
+    }
+    100% {
+        opacity: 1;
+        transform: translateX(0);
+    }
 }
 
 .introduction, .programs {
@@ -219,15 +269,15 @@ body {
 }
 
 .card.meet-me {
-    background-image: url('images/meet-me.png');
+    background-image: url('/images/meet-me.png');
 }
 
 .card.gallery {
-    background-image: url('images/gallery.png');
+    background-image: url('/images/gallery.png');
 }
 
 .card.history {
-    background-image: url('images/history.png');
+    background-image: url('/images/history.png');
 }
 
 footer {
@@ -366,7 +416,7 @@ section h2 {
 
 /* About Page Styles */
 .about-hero {
-    background-image: url('images/about-banner.png');
+    background-image: url('/images/about-banner.png');
     background-position: center;
     background-size: cover;
 }
@@ -513,7 +563,7 @@ section h2 {
     top: 20px;
     width: 60px;
     height: 60px;
-    background-image: url('images/star-icon.png');
+    background-image: url('/images/star-icon.png');
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center;
@@ -1871,15 +1921,15 @@ stripe-buy-button {
 }
 
 .link-image.meet-me {
-    background-image: url('images/meet-me.jpg');
+    background-image: url('/images/meet-me.jpg');
 }
 
 .link-image.gallery {
-    background-image: url('images/gallery.png');
+    background-image: url('/images/gallery.png');
 }
 
 .link-image.history {
-    background-image: url('images/history.jpg');
+    background-image: url('/images/history.jpg');
 }
 
 .link-image:hover {
@@ -1938,36 +1988,38 @@ stripe-buy-button {
 }
 
 /* Animations */
-@keyframes slideInLeft {
-    from {
-        transform: translateX(-100%);
-        opacity: 0;
-    }
-    to {
-        transform: translateX(0);
-        opacity: 1;
-    }
-}
-
-@keyframes slideInRight {
-    from {
-        transform: translateX(100%);
-        opacity: 0;
-    }
-    to {
-        transform: translateX(0);
-        opacity: 1;
-    }
+.slide-in-right {
+    opacity: 0;
+    transform: translateX(100%);
+    animation: slideInRight 1s ease forwards;
 }
 
 .slide-in-left {
-    animation: slideInLeft 1s ease forwards;
     opacity: 0;
+    transform: translateX(-100%);
+    animation: slideInLeft 1s ease forwards;
 }
 
-.slide-in-right {
-    animation: slideInRight 1s ease forwards;
-    opacity: 0;
+@keyframes slideInRight {
+    0% {
+        opacity: 0;
+        transform: translateX(100%);
+    }
+    100% {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes slideInLeft {
+    0% {
+        opacity: 0;
+        transform: translateX(-100%);
+    }
+    100% {
+        opacity: 1;
+        transform: translateX(0);
+    }
 }
 
 /* Add animation delays for cards */

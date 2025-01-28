@@ -1,19 +1,33 @@
-import { API_URL } from './js/config.js';
-
 // Ebook download functionality
-async function downloadEbook(bookId) {
-    try {
-        console.log('Opening viewer for book:', bookId);
-        const viewerUrl = `viewer.html?bookId=${encodeURIComponent(bookId)}`;
-        console.log('Viewer URL:', viewerUrl);
-        window.open(viewerUrl, '_blank');
-    } catch (error) {
-        console.error('Error opening viewer:', error);
-        alert('Error opening the ebook viewer. Please try again.');
-    }
-}
-
 document.addEventListener('DOMContentLoaded', () => {
+    const downloadButtons = document.querySelectorAll('.download-ebook');
+    downloadButtons.forEach(button => {
+        button.addEventListener('click', async () => {
+            const bookId = button.getAttribute('data-book-id');
+            if (bookId === 'mens-7-day-mental-ebook') {
+                try {
+                    const response = await fetch(`/api/ebook/${bookId}`);
+                    if (!response.ok) {
+                        throw new Error('Failed to get download URL');
+                    }
+                    const data = await response.json();
+                    
+                    // Create a temporary link and click it to start the download
+                    const link = document.createElement('a');
+                    link.href = data.downloadUrl;
+                    link.target = '_blank';
+                    link.rel = 'noopener noreferrer';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                } catch (error) {
+                    console.error('Error downloading ebook:', error);
+                    alert('Error downloading the ebook. Please try again.');
+                }
+            }
+        });
+    });
+
     // Mobile menu functionality
     const hamburger = document.querySelector('.hamburger');
     const nav = document.querySelector('nav ul');
@@ -28,11 +42,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     hamburger.addEventListener('click', toggleMenu);
-
-    // Close mobile menu when clicking overlay
     overlay.addEventListener('click', toggleMenu);
-
-    // Close menu when clicking a link
     document.querySelectorAll('nav a').forEach(link => {
         link.addEventListener('click', toggleMenu);
     });
@@ -49,21 +59,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
-                // Remove and re-add the class to restart animation
-                const element = entry.target;
-                const animationClass = element.classList.contains('slide-in-left') ? 'slide-in-left' : 'slide-in-right';
-                element.classList.remove(animationClass);
-                void element.offsetWidth; // Trigger reflow
-                element.classList.add(animationClass);
-                
-                // Unobserve after animation is triggered
-                observer.unobserve(element);
+                entry.target.style.opacity = '1';
+                observer.unobserve(entry.target);
             }
         });
     }, observerOptions);
 
     animatedElements.forEach(element => {
-        // Initially hide all animated elements
         element.style.opacity = '0';
         observer.observe(element);
     });
@@ -73,10 +75,7 @@ document.addEventListener('DOMContentLoaded', () => {
         anchor.addEventListener('click', function (e) {
             e.preventDefault();
             const href = this.getAttribute('href');
-            
-            // Skip empty hash links
             if (href === '#') return;
-            
             const target = document.querySelector(href);
             if (target) {
                 target.scrollIntoView({
@@ -251,12 +250,4 @@ document.addEventListener('DOMContentLoaded', () => {
     if (carousel) {
         initCarousel();
     }
-
-    // Add event listener for ebook download
-    document.addEventListener('click', function(e) {
-        if (e.target.classList.contains('download-ebook')) {
-            const bookId = e.target.dataset.bookId;
-            downloadEbook(bookId);
-        }
-    });
 });
