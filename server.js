@@ -38,44 +38,27 @@ app.use(express.static(path.join(__dirname), {
 // Store successful payments temporarily (in production, use a database)
 const successfulPayments = new Set();
 
-// Stripe webhook endpoint
-app.post('/webhook', async (req, res) => {
-    const sig = req.headers['stripe-signature'];
-    let event;
-
-    try {
-        event = stripe.webhooks.constructEvent(
-            req.rawBody,
-            sig,
-            process.env.STRIPE_WEBHOOK_SECRET
-        );
-    } catch (err) {
-        console.error('Webhook Error:', err.message);
-        return res.status(400).send(`Webhook Error: ${err.message}`);
-    }
-
-    // Handle the event
-    switch (event.type) {
-        case 'checkout.session.completed':
-            const session = event.data.object;
-            // Store the session ID for verification
-            successfulPayments.add(session.id);
-            console.log('Payment successful:', session.id);
-            break;
-        default:
-            console.log(`Unhandled event type ${event.type}`);
-    }
-
-    res.json({received: true});
-});
-
 // Success page with download link
-app.get('/success', (req, res) => {
+app.get('/success', async (req, res) => {
     const sessionId = req.query.session_id;
-    if (sessionId && successfulPayments.has(sessionId)) {
-        // Generate a one-time download link
-        res.sendFile(path.join(__dirname, 'success.html'));
-    } else {
+    
+    try {
+        if (!sessionId) {
+            return res.redirect('/');
+        }
+
+        // Verify the session with Stripe
+        const session = await stripe.checkout.sessions.retrieve(sessionId);
+        
+        if (session.payment_status === 'paid') {
+            // Store the session ID for download
+            successfulPayments.add(sessionId);
+            res.sendFile(path.join(__dirname, 'success.html'));
+        } else {
+            res.redirect('/');
+        }
+    } catch (error) {
+        console.error('Error verifying payment:', error);
         res.redirect('/');
     }
 });
@@ -85,8 +68,10 @@ app.get('/api/ebook/:sessionId', async (req, res) => {
     try {
         const { sessionId } = req.params;
         
-        // Verify the payment was successful
-        if (!successfulPayments.has(sessionId)) {
+        // Verify the session with Stripe again
+        const session = await stripe.checkout.sessions.retrieve(sessionId);
+        
+        if (session.payment_status !== 'paid') {
             return res.status(403).json({ error: 'Payment verification failed' });
         }
 
