@@ -1,6 +1,7 @@
 const express = require('express');
 const path = require('path');
 const cors = require('cors');
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 require('dotenv').config();
 
 const app = express();
@@ -17,7 +18,11 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
-app.use(express.json());
+app.use(express.json({
+    verify: (req, res, buf) => {
+        req.rawBody = buf
+    }
+}));
 app.use(express.static(path.join(__dirname)));
 
 // Serve static files except protected directory
@@ -29,6 +34,75 @@ app.use(express.static(path.join(__dirname), {
         }
     }
 }));
+
+// Store successful payments temporarily (in production, use a database)
+const successfulPayments = new Set();
+
+// Stripe webhook endpoint
+app.post('/webhook', async (req, res) => {
+    const sig = req.headers['stripe-signature'];
+    let event;
+
+    try {
+        event = stripe.webhooks.constructEvent(
+            req.rawBody,
+            sig,
+            process.env.STRIPE_WEBHOOK_SECRET
+        );
+    } catch (err) {
+        console.error('Webhook Error:', err.message);
+        return res.status(400).send(`Webhook Error: ${err.message}`);
+    }
+
+    // Handle the event
+    switch (event.type) {
+        case 'checkout.session.completed':
+            const session = event.data.object;
+            // Store the session ID for verification
+            successfulPayments.add(session.id);
+            console.log('Payment successful:', session.id);
+            break;
+        default:
+            console.log(`Unhandled event type ${event.type}`);
+    }
+
+    res.json({received: true});
+});
+
+// Success page with download link
+app.get('/success', (req, res) => {
+    const sessionId = req.query.session_id;
+    if (sessionId && successfulPayments.has(sessionId)) {
+        // Generate a one-time download link
+        res.sendFile(path.join(__dirname, 'success.html'));
+    } else {
+        res.redirect('/');
+    }
+});
+
+// Protected ebook download route
+app.get('/api/ebook/:sessionId', async (req, res) => {
+    try {
+        const { sessionId } = req.params;
+        
+        // Verify the payment was successful
+        if (!successfulPayments.has(sessionId)) {
+            return res.status(403).json({ error: 'Payment verification failed' });
+        }
+
+        // Remove the session ID after successful download
+        successfulPayments.delete(sessionId);
+        
+        const filePath = path.join(__dirname, 'protected', 'mens-7-day-mental-ebook-final3.pdf');
+        res.download(filePath);
+    } catch (error) {
+        console.error('Error in /api/ebook/:sessionId:', error);
+        res.status(500).json({ 
+            error: 'Failed to download file',
+            details: error.message 
+        });
+    }
+});
 
 // Routes for static pages
 app.get('/', (req, res) => {
@@ -53,29 +127,6 @@ app.get('/gallery', (req, res) => {
 
 app.get('/history', (req, res) => {
     res.sendFile(path.join(__dirname, 'history.html'));
-});
-
-app.get('/success', (req, res) => {
-    res.sendFile(path.join(__dirname, 'success.html'));
-});
-
-// Protected ebook download route
-app.get('/api/ebook/:bookId', async (req, res) => {
-    try {
-        const { bookId } = req.params;
-        console.log('Attempting to download book:', bookId);
-        
-        // Here we would verify the purchase using Stripe's API
-        // For now, we'll just serve the file
-        const filePath = path.join(__dirname, 'protected', 'mens-7-day-mental-ebook-final3.pdf');
-        res.download(filePath);
-    } catch (error) {
-        console.error('Error in /api/ebook/:bookId:', error);
-        res.status(500).json({ 
-            error: 'Failed to download file',
-            details: error.message 
-        });
-    }
 });
 
 // Health check endpoint

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Payment Success - Creativity with Bossibilities</title>
+    <title>Payment Successful - Creativity with Bossibilities</title>
     <link rel="stylesheet" href="style.css">
     <link rel="icon" type="image/png" href="images/site-image.png">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&family=Playfair+Display:wght@400;500;600&display=swap" rel="stylesheet">
@@ -29,26 +29,18 @@
 
     <main class="main-content">
         <section class="success-section">
-            <div class="success-content">
-                <div class="success-icon">
-                    <i class="fa-solid fa-circle-check"></i>
-                </div>
+            <div class="success-container">
                 <h1>Thank You for Your Purchase!</h1>
-                <div class="success-details">
+                <div class="success-message">
                     <p>Your payment has been processed successfully.</p>
-                    <p>Check your email for your download link to:</p>
-                    <h2>"MENS 7 DAY MENTAL E-BOOK"</h2>
-                    <div class="email-info">
-                        <p><i class="fa-solid fa-envelope"></i> The email will arrive within the next few minutes</p>
-                        <p><i class="fa-solid fa-clock"></i> Download link expires in 24 hours</p>
-                    </div>
-                    <div class="support-info">
-                        <p>Need help? Contact us at:</p>
-                        <p><i class="fa-solid fa-envelope"></i> info@creativitywithbossibilities.com</p>
-                        <p><i class="fa-solid fa-phone"></i> 470-660-4300</p>
+                    <div id="download-section" style="display: none;">
+                        <p>Your ebook is ready for download.</p>
+                        <button id="download-button" class="download-btn">Download eBook</button>
                     </div>
                 </div>
-                <a href="ebook.html" class="return-button">Return to Shop</a>
+                <div class="navigation-links">
+                    <a href="ebook.html" class="home-link">Return to Shop</a>
+                </div>
             </div>
         </section>
 
@@ -86,6 +78,29 @@
         </footer>
     </main>
 
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get session_id from URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const sessionId = urlParams.get('session_id');
+            
+            if (sessionId) {
+                const downloadSection = document.getElementById('download-section');
+                const downloadButton = document.getElementById('download-button');
+                
+                downloadSection.style.display = 'block';
+                
+                downloadButton.addEventListener('click', function() {
+                    // Initiate download
+                    window.location.href = `/api/ebook/${sessionId}`;
+                    
+                    // Disable button after click
+                    downloadButton.disabled = true;
+                    downloadButton.textContent = 'Download Started...';
+                });
+            }
+        });
+    </script>
     <script src="script.js"></script>
 </body>
 </html>
