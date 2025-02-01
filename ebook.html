@@ -7,7 +7,8 @@
     <link rel="stylesheet" href="style.css">
     <link rel="icon" type="image/png" href="images/site-image.png">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&family=Playfair+Display:wght@400;500;600&display=swap" rel="stylesheet">
-    <script async src="https://js.stripe.com/v3/buy-button.js"></script>
+    <script defer src="https://js.stripe.com/v3/buy-button.js"></script>
+    <script type="module" src="main.js"></script>
 </head>
 <body>
     <nav class="navbar">
@@ -45,11 +46,13 @@
                             <span class="star">☆</span>
                         </div>
                         <div class="price">$99.99</div>
-                        <stripe-buy-button
-                            buy-button-id="buy_btn_1QjEsZHmoFbA75bcZJJABZvd"
-                            publishable-key="pk_live_51QjCsvHmoFbA75bcQ3vhJIpSQtNBEQsqnsK49mrBKuNquwUbsjtL9bL5Z6XvFIEu26M1b53XZPWb6n5TZJMPmpae00UCxQP1xr"
-                        >
-                        </stripe-buy-button>
+                        <div class="buy-button-container">
+                            <stripe-buy-button
+                                buy-button-id="buy_btn_1QnWNkHmoFbA75bcDP5bI1Ea"
+                                publishable-key="pk_live_51QjCsvHmoFbA75bcQ3vhJIpSQtNBEQsqnsK49mrBKuNquwUbsjtL9bL5Z6XvFIEu26M1b53XZPWb6n5TZJMPmpae00UCxQP1xr"
+                            >
+                            </stripe-buy-button>
+                        </div>
                     </div>
                 </div>
 
@@ -67,15 +70,14 @@
                             <span class="star">☆</span>
                             <span class="star">☆</span>
                         </div>
-                        <div class="price">$49.99</div>
-                        <stripe-buy-button
-                            buy-button-id="buy_btn_1OwsdfHmoFbA75bcKJHGFDSA"
-                            publishable-key="pk_live_51QjCsvHmoFbA75bcQ3vhJIpSQtNBEQsqnsK49mrBKuNquwUbsjtL9bL5Z6XvFIEu26M1b53XZPWb6n5TZJMPmpae00UCxQP1xr"
-                        >
-                        </stripe-buy-button>
-                        <button class="download-button download-ebook" data-book-id="mens-7-day-mental-ebook">
-                            📥 Download Free Preview
-                        </button>
+                        <div class="price">$59.99</div>
+                        <div class="buy-button-container">
+                            <stripe-buy-button
+                                buy-button-id="buy_btn_1QnW7rHmoFbA75bcZBCg1Rbk"
+                                publishable-key="pk_live_51QjCsvHmoFbA75bcQ3vhJIpSQtNBEQsqnsK49mrBKuNquwUbsjtL9bL5Z6XvFIEu26M1b53XZPWb6n5TZJMPmpae00UCxQP1xr"
+                            >
+                            </stripe-buy-button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -116,6 +118,5 @@
         </footer>
     </main>
 
-    <script src="main.js"></script>
 </body>
 </html>

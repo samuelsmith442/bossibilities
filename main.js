@@ -13,7 +13,71 @@ async function downloadEbook(bookId) {
     }
 }
 
+// Shopping cart functionality
+window.addToBasket = function(productId, price, imageUrl, name) {
+    // Initialize cart if it doesn't exist
+    let cart = JSON.parse(localStorage.getItem('cart')) || [];
+    
+    // Add item to cart
+    cart.push({
+        id: productId,
+        price: price,
+        image: imageUrl,
+        name: name,
+        quantity: 1
+    });
+    
+    // Save cart
+    localStorage.setItem('cart', JSON.stringify(cart));
+    
+    // Update cart count
+    updateCartCount();
+    
+    // Show success message
+    alert('Item added to basket!');
+}
+
+function updateCartCount() {
+    const cart = JSON.parse(localStorage.getItem('cart')) || [];
+    const cartCount = cart.length;
+    
+    // Update cart count display if it exists
+    const cartCountElement = document.querySelector('.cart-count');
+    if (cartCountElement) {
+        cartCountElement.textContent = cartCount;
+        cartCountElement.style.display = cartCount > 0 ? 'block' : 'none';
+    }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
+    updateCartCount();
+
+    // Initialize Stripe elements
+    const stripeBuyButtons = document.querySelectorAll('stripe-buy-button');
+    stripeBuyButtons.forEach(button => {
+        // Remove any existing error classes
+        const buttonContainer = button.closest('.buy-button-container');
+        if (buttonContainer) {
+            buttonContainer.classList.remove('error');
+        }
+
+        // Handle button loading
+        button.addEventListener('load', () => {
+            const actualButton = button.shadowRoot?.querySelector('button');
+            if (actualButton) {
+                actualButton.classList.remove('ErrorButton');
+            }
+        });
+
+        // Handle button errors
+        button.addEventListener('error', (event) => {
+            console.error('Stripe button error:', event.detail);
+            if (buttonContainer) {
+                buttonContainer.classList.add('error');
+            }
+        });
+    });
+
     // Mobile menu functionality
     const hamburger = document.querySelector('.hamburger');
     const nav = document.querySelector('nav ul');

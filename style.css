@@ -1437,6 +1437,34 @@ stripe-buy-button {
     margin-top: 1rem;
 }
 
+.buy-button-container {
+    width: 100%;
+    margin: 1rem 0;
+    display: flex;
+    justify-content: center;
+    min-height: 40px;
+}
+
+.buy-button-container stripe-buy-button {
+    width: 100%;
+    max-width: 300px;
+}
+
+/* Hide error message from Stripe button */
+stripe-buy-button.errorButton::after {
+    content: none !important;
+}
+
+/* Custom error message */
+.buy-button-container.error::after {
+    content: "Please try again later";
+    color: #dc3545;
+    font-size: 14px;
+    margin-top: 8px;
+    display: block;
+    text-align: center;
+}
+
 /* Add to basket button styles */
 .add-to-basket {
     background-color: var(--button-primary);
@@ -2102,4 +2130,43 @@ stripe-buy-button {
     .success-section h2 {
         font-size: 1.5rem;
     }
+}
+
+/* Stripe button overrides */
+.buy-button-container button.ErrorButton {
+    background-color: var(--button-primary) !important;
+    border: none !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+    cursor: pointer !important;
+    display: inline-block !important;
+}
+
+.buy-button-container button.ErrorButton:hover {
+    background-color: var(--button-primary-hover) !important;
+}
+
+.buy-button-container button.ErrorButton .ErrorButton-text {
+    color: white !important;
+    opacity: 1 !important;
+}
+
+/* Hide error message container */
+.buy-button-container .ErrorButton-textContainer {
+    display: none !important;
+}
+
+/* Ensure the button container is properly sized */
+.buy-button-container {
+    width: 100%;
+    margin: 1rem 0;
+    display: flex;
+    justify-content: center;
+    min-height: 40px;
+}
+
+.buy-button-container stripe-buy-button {
+    width: 100%;
+    max-width: 300px;
+    min-height: 40px;
 }
