@@ -39,3 +39,16 @@ yarn-error.log*
 
 # Backup files
 *.bak
+
+# Node
+node_modules/
+npm-debug.log
+.env
+
+# Protected directory
+protected/*
+!protected/mens-7-day-mental-ebook-final3.pdf
+
+# OS
+.DS_Store
+Thumbs.db
