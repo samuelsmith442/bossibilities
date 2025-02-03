@@ -74,15 +74,32 @@
         .contact-info {
             display: flex;
             justify-content: center;
-            gap: 20px;
-            margin-top: 15px;
+            align-items: center;
+            flex-direction: column;
+            gap: 15px;
+            margin: 20px 0;
         }
         .contact-info a {
             color: #dc3545;
             text-decoration: none;
+            font-weight: 500;
+            padding: 10px 20px;
+            border-radius: 6px;
+            transition: all 0.3s;
+            text-align: center;
+            width: 100%;
+            max-width: 300px;
         }
         .contact-info a:hover {
-            text-decoration: underline;
+            background: #fff5f6;
+            text-decoration: none;
+            transform: translateY(-2px);
+        }
+        .contact-divider {
+            width: 30px;
+            height: 2px;
+            background: #dee2e6;
+            margin: 5px auto;
         }
         .return-btn {
             display: inline-block;
@@ -122,15 +139,13 @@
             <h3>Need Help?</h3>
             <p>If you experience any issues with your download:</p>
             <div class="contact-info">
-                <a href="mailto:info@creativitywithbossibilities.com">
-                    info@creativitywithbossibilities.com
-                </a>
-                <span>|</span>
+                <a href="mailto:info@creativitywithbossibilities.com">info@creativitywithbossibilities.com</a>
+                <div class="contact-divider"></div>
                 <a href="tel:470-660-4300">470-660-4300</a>
             </div>
         </div>
 
-        <a href="/ebook" class="return-btn">Return to Shop</a>
+        <a href="/ebook.html" class="return-btn">Return to Shop</a>
     </div>
 
     <script>

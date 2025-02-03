@@ -8,16 +8,13 @@
     <link rel="icon" type="image/png" href="images/site-image.png">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&family=Playfair+Display:wght@400;500;600&display=swap" rel="stylesheet">
     <script async src="https://js.stripe.com/v3/buy-button.js"></script>
-    <script type="module" src="main.js"></script>
 </head>
 <body>
     <nav class="navbar">
-        <div class="hamburger">
+        <button class="mobile-nav-toggle" aria-expanded="false" aria-controls="nav-links">
             <span></span>
-            <span></span>
-            <span></span>
-        </div>
-        <ul>
+        </button>
+        <ul id="nav-links">
             <li><a href="index.html">Home Page</a></li>
             <li><a href="about.html">About Us</a></li>
             <li><a href="gallery.html">Gallery</a></li>
@@ -109,5 +106,6 @@
         </footer>
     </main>
 
+    <script src="main.js"></script>
 </body>
 </html>
