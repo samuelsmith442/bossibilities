@@ -20,8 +20,8 @@ app.use(express.json());
 // Serve static files
 app.use(express.static(path.join(__dirname)));
 
-// Success page route handler
-app.get('/success', (req, res) => {
+// Handle success page and other HTML routes
+app.get(['/success', '/success.html'], (req, res) => {
     res.sendFile(path.join(__dirname, 'success.html'));
 });
 
@@ -120,25 +120,12 @@ app.get('/api/ebook/:sessionId', async (req, res) => {
   }
 });
 
-// Handle all other routes by serving static files
 app.get('*', (req, res, next) => {
-  const filePath = path.join(__dirname, req.path);
-  
-  // If the path doesn't have an extension, try to serve the HTML file
-  if (!path.extname(req.path)) {
-    const htmlPath = path.join(__dirname, `${req.path}.html`);
-    res.sendFile(htmlPath, (err) => {
-      if (err) {
-        next(); // If HTML file doesn't exist, continue to next middleware
-      }
-    });
-  } else {
-    res.sendFile(filePath, (err) => {
-      if (err) {
-        next(); // If file doesn't exist, continue to next middleware
-      }
-    });
-  }
+    if (req.path.endsWith('.html')) {
+        res.sendFile(path.join(__dirname, req.path));
+    } else {
+        next();
+    }
 });
 
 // Handle 404
