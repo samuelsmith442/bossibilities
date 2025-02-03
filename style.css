@@ -1090,138 +1090,196 @@ section h2 {
 .gallery-section {
     max-width: 1200px;
     margin: 4rem auto;
-    padding: 0 1rem;
+    padding: 2rem;
     box-sizing: border-box;
 }
 
 .gallery-header {
     text-align: center;
-    margin-bottom: 2rem;
+    margin-bottom: 3rem;
+}
+
+.gallery-header img {
+    max-width: 100%;
+    height: auto;
+    object-fit: contain;
 }
 
 .gallery-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 1rem;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
     padding: 0;
     box-sizing: border-box;
 }
 
 .gallery-item {
-    background: none;
-    padding: 0;
-    border: none;
-    border-radius: 0;
-    box-shadow: none;
-    transition: transform 0.3s ease;
-    max-width: 100%;
-    margin: 0;
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-.gallery-item-image {
+.gallery-item img {
     width: 100%;
     height: auto;
-    border-radius: 0;
-    display: block;
     object-fit: cover;
-    margin: 0;
-    padding: 0;
+    transition: transform 0.3s ease;
+}
+
+.gallery-item:hover img {
+    transform: scale(1.05);
 }
 
 .gallery-section-title {
+    grid-column: 1 / -1;
     text-align: center;
+    margin: 2rem 0;
     font-size: 1.8rem;
-    margin: 2rem auto;
     color: var(--text-color);
-    max-width: 800px;
-    line-height: 1.4;
     padding: 0 1rem;
 }
 
-/* Responsive Gallery Styles */
-@media (max-width: 768px) {
-    .gallery-section {
-        margin: 1rem auto 0;
-        padding: 0 0.5rem;
-    }
-
-    .gallery-title {
-        font-size: 1.75rem;
-    }
-
-    .gallery-section-title {
-        font-size: 1.25rem;
-        padding: 0 1rem;
-    }
-
-    .gallery-section .carousel-track {
-        height: 300px;
-    }
+/* Carousel Styles */
+.carousel-container {
+    grid-column: 1 / -1;
+    position: relative;
+    width: 100%;
+    max-width: 1100px;
+    margin: 2rem auto;
+    overflow: hidden;
 }
 
-@media (max-width: 480px) {
-    .gallery-title {
-        font-size: 1.5rem;
-    }
+.carousel-track {
+    display: flex;
+    transition: transform 0.5s ease-in-out;
+    height: 500px;
+}
 
-    .gallery-section-title {
-        font-size: 1.1rem;
-    }
+.carousel-slide {
+    flex: 0 0 100%;
+    min-width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
 
-    .gallery-section .carousel-track {
-        height: 250px;
-    }
+.carousel-slide img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
+.carousel-button {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(0, 0, 0, 0.5);
+    color: white;
+    border: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.3s ease;
+    z-index: 2;
+}
+
+.carousel-button:hover {
+    background: rgba(0, 0, 0, 0.8);
+}
+
+.carousel-button.prev {
+    left: 10px;
+}
+
+.carousel-button.next {
+    right: 10px;
+}
+
+.carousel-dots {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 10px;
+    z-index: 2;
+}
+
+.dot {
+    width: 12px;
+    height: 12px;
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 50%;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.dot.active {
+    background: white;
 }
 
 /* Community Events Section */
 .community-events {
+    grid-column: 1 / -1;
     margin: 3rem 0;
+    padding: 0 1rem;
+    box-sizing: border-box;
 }
 
-.event-images {
-    display: flex;
-    justify-content: center;
-    gap: 2rem;
-    flex-wrap: wrap;
-    margin: 2rem 0;
-}
-
-.event-image {
-    flex: 0 1 300px;
-    height: 400px;
-    overflow: hidden;
-}
-
-.event-image img {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-    transition: transform 0.3s ease;
-}
-
-.event-image:hover img {
-    transform: scale(1.05);
-}
-
+/* Responsive Styles */
 @media (max-width: 768px) {
-    .community-events {
-        margin: 2rem 0 1rem;
+    .gallery-section {
+        margin: 2rem auto;
+        padding: 1rem;
     }
 
-    .event-images {
-        gap: 1rem;
+    .gallery-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+
+    .gallery-section-title {
+        font-size: 1.4rem;
+        margin: 1.5rem 0;
+    }
+
+    .carousel-track {
+        height: 300px;
+    }
+
+    .carousel-button {
+        width: 30px;
+        height: 30px;
+        font-size: 16px;
+    }
+
+    .dot {
+        width: 8px;
+        height: 8px;
+    }
+}
+
+@media (max-width: 480px) {
+    .gallery-section {
+        margin: 1rem auto;
+        padding: 0.5rem;
+    }
+
+    .gallery-section-title {
+        font-size: 1.2rem;
         margin: 1rem 0;
     }
 
-    .event-image {
-        width: 100%;
-    }
-
-    .event-image img {
-        width: 100%;
-        height: auto;
-        display: block;
-        margin-bottom: 0;
+    .carousel-track {
+        height: 250px;
     }
 }
 
@@ -1529,20 +1587,6 @@ section h2 {
 .buy-button-container stripe-buy-button {
     width: 100%;
     max-width: 300px;
-    min-height: 40px;
-}
-.buy-button-container {
-    width: 100%;
-    margin: 1rem 0;
-    display: flex;
-    justify-content: center;
-    min-height: 40px;
-}
-
-.buy-button-container stripe-buy-button {
-    width: 100%;
-    max-width: 300px;
-    min-height: 40px;
 }
 
 /* Responsive styles for meet-me image */

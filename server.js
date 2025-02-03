@@ -1,14 +1,15 @@
-require('dotenv').config({ path: '.env.local' });
+// Load environment variables based on NODE_ENV
+if (process.env.NODE_ENV === 'production') {
+    require('dotenv').config();
+} else {
+    require('dotenv').config({ path: '.env.local' });
+}
+
 const express = require('express');
 const path = require('path');
 
-// Log the environment variables (remove in production)
-console.log('Loading environment from .env.local');
-console.log('Environment:', {
-  nodeEnv: process.env.NODE_ENV,
-  stripeKey: process.env.STRIPE_SECRET_KEY ? 'Present' : 'Missing',
-  priceId: process.env.STRIPE_PRICE_ID ? 'Present' : 'Missing'
-});
+// Log the environment (remove in production)
+console.log('Environment:', process.env.NODE_ENV);
 
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const app = express();
@@ -20,9 +21,23 @@ app.use(express.json());
 // Serve static files
 app.use(express.static(path.join(__dirname)));
 
-// Handle success page and other HTML routes
+// Handle HTML routes
+app.get(['/', '/index.html'], (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
+});
+
 app.get(['/success', '/success.html'], (req, res) => {
     res.sendFile(path.join(__dirname, 'success.html'));
+});
+
+// Handle other HTML files
+app.get('*.html', (req, res) => {
+    const filePath = path.join(__dirname, req.path);
+    res.sendFile(filePath, (err) => {
+        if (err) {
+            res.status(404).send('Not found');
+        }
+    });
 });
 
 // Stripe webhook handling
@@ -46,34 +61,34 @@ app.post('/webhook', express.raw({type: 'application/json'}), async (req, res) =
 
 // Create Stripe checkout session
 app.post('/api/create-checkout-session', async (req, res) => {
-  const baseURL = process.env.NODE_ENV === 'production' 
-      ? 'https://bossibilities.onrender.com'
-      : `${req.protocol}://${req.get('host')}`;
+    try {
+        const baseURL = process.env.NODE_ENV === 'production' 
+            ? 'https://bossibilities.onrender.com'
+            : `${req.protocol}://${req.get('host')}`;
 
-  try {
-    const session = await stripe.checkout.sessions.create({
-      payment_method_types: ['card'],
-      line_items: [{
-        price_data: {
-          currency: 'usd',
-          product_data: {
-            name: "7-Day Mental E-Book",
-            description: "Men's 7-Day Mental E-Book"
-          },
-          unit_amount: 5999,
-        },
-        quantity: 1,
-      }],
-      mode: 'payment',
-      success_url: `${baseURL}/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${baseURL}/ebook.html`,
-    });
+        const session = await stripe.checkout.sessions.create({
+            payment_method_types: ['card'],
+            line_items: [{
+                price_data: {
+                    currency: 'usd',
+                    product_data: {
+                        name: "7-Day Mental E-Book",
+                        description: "Men's 7-Day Mental E-Book"
+                    },
+                    unit_amount: 5999,
+                },
+                quantity: 1,
+            }],
+            mode: 'payment',
+            success_url: `${baseURL}/success`,
+            cancel_url: `${baseURL}/ebook.html`,
+        });
 
-    res.json({ sessionId: session.id });
-  } catch (err) {
-    console.error('Stripe Error:', err);
-    res.status(500).json({ error: err.message });
-  }
+        res.json({ sessionId: session.id });
+    } catch (err) {
+        console.error('Stripe Error:', err);
+        res.status(500).json({ error: err.message });
+    }
 });
 
 // Verify payment and serve protected file
