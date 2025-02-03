@@ -20,6 +20,11 @@ app.use(express.json());
 // Serve static files
 app.use(express.static(path.join(__dirname)));
 
+// Success page route handler
+app.get('/success', (req, res) => {
+    res.sendFile(path.join(__dirname, 'success.html'));
+});
+
 // Stripe webhook handling
 app.post('/webhook', express.raw({type: 'application/json'}), async (req, res) => {
   const sig = req.headers['stripe-signature'];
@@ -41,6 +46,10 @@ app.post('/webhook', express.raw({type: 'application/json'}), async (req, res) =
 
 // Create Stripe checkout session
 app.post('/api/create-checkout-session', async (req, res) => {
+  const baseURL = process.env.NODE_ENV === 'production' 
+      ? 'https://bossibilities.onrender.com'
+      : `${req.protocol}://${req.get('host')}`;
+
   try {
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
@@ -51,13 +60,13 @@ app.post('/api/create-checkout-session', async (req, res) => {
             name: "7-Day Mental E-Book",
             description: "Men's 7-Day Mental E-Book"
           },
-          unit_amount: 5999, // $4.99
+          unit_amount: 5999,
         },
         quantity: 1,
       }],
       mode: 'payment',
-      success_url: `${req.headers.origin}/success.html?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${req.headers.origin}/ebook.html`,
+      success_url: `${baseURL}/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${baseURL}/ebook.html`,
     });
 
     res.json({ sessionId: session.id });
