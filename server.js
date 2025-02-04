@@ -63,13 +63,16 @@ app.post('/webhook', express.raw({type: 'application/json'}), async (req, res) =
 // Create Stripe checkout session
 app.post('/api/create-checkout-session', async (req, res) => {
     try {
-        // Simplified base URL logic for Render deployment
-        const baseURL = process.env.NODE_ENV === 'production'
-            ? 'https://bossibilities-1.onrender.com'  // Hardcode the production URL
-            : `${req.protocol}://${req.get('host')}`;
+        // Get the domain based on environment
+        let domain;
+        if (process.env.NODE_ENV === 'production') {
+            domain = 'https://bossibilities-1.onrender.com';
+        } else {
+            domain = process.env.DOMAIN || 'http://localhost:3000';
+        }
 
         console.log('Environment:', process.env.NODE_ENV);
-        console.log('Creating checkout session with baseURL:', baseURL);
+        console.log('Domain for checkout:', domain);
 
         const session = await stripe.checkout.sessions.create({
             payment_method_types: ['card'],
@@ -85,8 +88,8 @@ app.post('/api/create-checkout-session', async (req, res) => {
                 quantity: 1,
             }],
             mode: 'payment',
-            success_url: `${baseURL}/success?session_id={CHECKOUT_SESSION_ID}`,
-            cancel_url: `${baseURL}/ebook.html`,
+            success_url: `${domain}/success?session_id={CHECKOUT_SESSION_ID}`,
+            cancel_url: `${domain}/ebook.html`,
         });
 
         res.json({ sessionId: session.id });
