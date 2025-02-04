@@ -73,6 +73,17 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Shopping cart functionality
     updateCartCount();
+
+    // Initialize success page if we're on the success page
+    if (window.location.pathname.includes('success')) {
+        initializeSuccessPage();
+    }
+
+    // Initialize carousel if it exists
+    const carousel = document.querySelector('.carousel-container');
+    if (carousel) {
+        initCarousel();
+    }
 });
 
 // Shopping cart functionality
@@ -97,6 +108,38 @@ function updateCartCount() {
     if (cartCountElement) {
         cartCountElement.textContent = cartCount;
         cartCountElement.style.display = cartCount > 0 ? 'block' : 'none';
+    }
+}
+
+// Success page functionality
+function initializeSuccessPage() {
+    // Get session_id from URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const sessionId = urlParams.get('session_id');
+    
+    if (sessionId) {
+        const downloadSection = document.getElementById('download-section');
+        const downloadButton = document.getElementById('download-button');
+        
+        if (downloadSection && downloadButton) {
+            downloadSection.style.display = 'block';
+            
+            downloadButton.addEventListener('click', function() {
+                // Get the current URL and use it as the base
+                const baseURL = window.location.origin;
+                window.location.href = `${baseURL}/api/ebook/${sessionId}`;
+                
+                // Disable button after click
+                downloadButton.disabled = true;
+                downloadButton.textContent = 'Download Started...';
+                
+                // Re-enable button after 5 seconds in case user needs to try again
+                setTimeout(() => {
+                    downloadButton.disabled = false;
+                    downloadButton.textContent = 'Download eBook Again';
+                }, 5000);
+            });
+        }
     }
 }
 
@@ -206,41 +249,4 @@ function initCarousel() {
         clearInterval(intervalId);
         intervalId = setInterval(moveNext, 5000);
     });
-}
-
-// Initialize carousel if it exists
-const carousel = document.querySelector('.carousel-container');
-if (carousel) {
-    initCarousel();
-}
-
-// Success page functionality
-export function initializeSuccessPage() {
-    // Get session_id from URL
-    const urlParams = new URLSearchParams(window.location.search);
-    const sessionId = urlParams.get('session_id');
-    
-    if (sessionId) {
-        const downloadSection = document.getElementById('download-section');
-        const downloadButton = document.getElementById('download-button');
-        
-        if (downloadSection && downloadButton) {
-            downloadSection.style.display = 'block';
-            
-            downloadButton.addEventListener('click', function() {
-                // Initiate download using the API_URL from config
-                window.location.href = `${API_URL}/api/ebook/${sessionId}`;
-                
-                // Disable button after click
-                downloadButton.disabled = true;
-                downloadButton.textContent = 'Download Started...';
-                
-                // Re-enable button after 5 seconds in case user needs to try again
-                setTimeout(() => {
-                    downloadButton.disabled = false;
-                    downloadButton.textContent = 'Download eBook Again';
-                }, 5000);
-            });
-        }
-    }
 }
