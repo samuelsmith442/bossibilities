@@ -63,7 +63,7 @@ app.post('/webhook', express.raw({type: 'application/json'}), async (req, res) =
 app.post('/api/create-checkout-session', async (req, res) => {
     try {
         const baseURL = process.env.NODE_ENV === 'production' 
-            ? 'https://bossibilities.onrender.com'
+            ? process.env.RENDER_EXTERNAL_URL || 'https://bossibilities-1.onrender.com'
             : `${req.protocol}://${req.get('host')}`;
 
         const session = await stripe.checkout.sessions.create({
