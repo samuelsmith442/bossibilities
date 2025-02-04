@@ -65,10 +65,10 @@ app.post('/api/create-checkout-session', async (req, res) => {
     try {
         // Get the base URL from environment variable or request
         const baseURL = process.env.NODE_ENV === 'production' 
-            ? 'https://bossibilities-1.onrender.com'
+            ? process.env.BASE_URL || 'https://bossibilities-1.onrender.com'
             : `${req.protocol}://${req.get('host')}`;
 
-        console.log('Creating checkout session with baseURL:', baseURL); // Add logging
+        console.log('Creating checkout session with baseURL:', baseURL);
 
         const session = await stripe.checkout.sessions.create({
             payment_method_types: ['card'],
@@ -84,7 +84,7 @@ app.post('/api/create-checkout-session', async (req, res) => {
                 quantity: 1,
             }],
             mode: 'payment',
-            success_url: `${baseURL}/success.html?session_id={CHECKOUT_SESSION_ID}`,
+            success_url: `${baseURL}/success?session_id={CHECKOUT_SESSION_ID}`,
             cancel_url: `${baseURL}/ebook.html`,
         });
 
