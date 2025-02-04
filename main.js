@@ -76,6 +76,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Initialize success page if we're on the success page
     if (window.location.pathname.includes('success')) {
+        console.log('On success page, initializing...');
         initializeSuccessPage();
     }
 
@@ -113,41 +114,81 @@ function updateCartCount() {
 
 // Success page functionality
 function initializeSuccessPage() {
+    console.log('initializeSuccessPage called');
+    
     // Get session_id from URL
     const urlParams = new URLSearchParams(window.location.search);
     const sessionId = urlParams.get('session_id');
+    console.log('Session ID:', sessionId);
     
     if (sessionId) {
         const downloadSection = document.getElementById('download-section');
         const downloadButton = document.getElementById('download-button');
+        console.log('Download section:', downloadSection);
+        console.log('Download button:', downloadButton);
         
         if (downloadSection && downloadButton) {
             downloadSection.style.display = 'block';
             
-            downloadButton.addEventListener('click', function() {
-                // Get the current URL and use it as the base
-                const baseURL = window.location.origin;
-                const downloadUrl = `${baseURL}/api/ebook/${sessionId}`;
-                console.log('Attempting download from:', downloadUrl); // Add logging
+            downloadButton.addEventListener('click', function(e) {
+                e.preventDefault();
+                console.log('Download button clicked');
                 
-                // Create a hidden iframe for the download
-                const iframe = document.createElement('iframe');
-                iframe.style.display = 'none';
-                document.body.appendChild(iframe);
-                iframe.src = downloadUrl;
-                
-                // Disable button after click
-                downloadButton.disabled = true;
-                downloadButton.textContent = 'Download Started...';
-                
-                // Re-enable button after 5 seconds in case user needs to try again
-                setTimeout(() => {
+                try {
+                    // Get the current URL and use it as the base
+                    const baseURL = window.location.origin;
+                    const downloadUrl = `${baseURL}/api/ebook/${sessionId}`;
+                    console.log('Download URL:', downloadUrl);
+                    
+                    // Disable button and show loading state
+                    downloadButton.disabled = true;
+                    downloadButton.textContent = 'Starting Download...';
+
+                    // Use fetch to check if the file is accessible
+                    fetch(downloadUrl)
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error('Download failed');
+                            }
+                            return response.blob();
+                        })
+                        .then(blob => {
+                            // Create a download link
+                            const url = window.URL.createObjectURL(blob);
+                            const a = document.createElement('a');
+                            a.style.display = 'none';
+                            a.href = url;
+                            a.download = '7-Day-Mental-Ebook.pdf';
+                            document.body.appendChild(a);
+                            a.click();
+                            window.URL.revokeObjectURL(url);
+                            document.body.removeChild(a);
+                            
+                            // Update button state
+                            downloadButton.textContent = 'Download Started!';
+                            setTimeout(() => {
+                                downloadButton.disabled = false;
+                                downloadButton.textContent = 'Download eBook Again';
+                            }, 5000);
+                        })
+                        .catch(error => {
+                            console.error('Download error:', error);
+                            downloadButton.disabled = false;
+                            downloadButton.textContent = 'Try Download Again';
+                            alert('Download failed. Please try again or contact support.');
+                        });
+                } catch (error) {
+                    console.error('Error initiating download:', error);
                     downloadButton.disabled = false;
-                    downloadButton.textContent = 'Download eBook Again';
-                    document.body.removeChild(iframe);
-                }, 5000);
+                    downloadButton.textContent = 'Try Download Again';
+                    alert('Download failed. Please try again or contact support.');
+                }
             });
+        } else {
+            console.error('Download section or button not found');
         }
+    } else {
+        console.error('No session ID found in URL');
     }
 }
 
