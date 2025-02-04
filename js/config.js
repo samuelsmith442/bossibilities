@@ -6,7 +6,7 @@ const config = {
     },
     // Production
     production: {
-        apiUrl: 'https://bossibilities.onrender.com' // Replace with your Render.com URL
+        apiUrl: 'https://bossibilities-1.onrender.com' // Updated Render.com URL
     }
 };
 
