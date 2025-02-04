@@ -124,20 +124,20 @@ app.get('/api/verify-payment', async (req, res) => {
 app.get('/api/ebook/:sessionId', async (req, res) => {
     try {
         const { sessionId } = req.params;
-        console.log('Received download request for session:', sessionId); // Add logging
+        console.log('Received download request for session:', sessionId);
 
         // Verify the session exists and was paid
         const session = await stripe.checkout.sessions.retrieve(sessionId);
-        console.log('Session status:', session.payment_status); // Add logging
+        console.log('Session status:', session.payment_status);
 
         if (session.payment_status !== 'paid') {
             console.log('Payment not completed for session:', sessionId);
             return res.status(400).send('Payment required');
         }
 
-        // Path to your PDF file
-        const filePath = path.join(__dirname, 'ebooks', '7-Day-Mental-Ebook.pdf');
-        console.log('Attempting to send file:', filePath); // Add logging
+        // Path to your PDF file in the protected folder
+        const filePath = path.join(__dirname, 'protected', 'mens-7-day-mental-ebook-final3.pdf');
+        console.log('Attempting to send file:', filePath);
 
         // Check if file exists
         if (!fs.existsSync(filePath)) {
@@ -145,16 +145,31 @@ app.get('/api/ebook/:sessionId', async (req, res) => {
             return res.status(404).send('Ebook file not found');
         }
 
+        // Get file information
+        const stat = fs.statSync(filePath);
+        
         // Set headers for file download
+        res.setHeader('Content-Length', stat.size);
         res.setHeader('Content-Type', 'application/pdf');
-        res.setHeader('Content-Disposition', 'attachment; filename=7-Day-Mental-Ebook.pdf');
+        res.setHeader('Content-Disposition', 'attachment; filename="7-Day-Mental-Ebook.pdf"');
+        res.setHeader('Cache-Control', 'no-cache');
+        res.setHeader('Accept-Ranges', 'bytes');
 
         // Stream the file
         const fileStream = fs.createReadStream(filePath);
+        fileStream.on('error', (error) => {
+            console.error('Stream error:', error);
+            if (!res.headersSent) {
+                res.status(500).send('Error streaming file');
+            }
+        });
+
         fileStream.pipe(res);
     } catch (err) {
         console.error('Download Error:', err);
-        res.status(500).send('Error processing download');
+        if (!res.headersSent) {
+            res.status(500).send('Error processing download');
+        }
     }
 });
 
