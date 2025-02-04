@@ -63,11 +63,12 @@ app.post('/webhook', express.raw({type: 'application/json'}), async (req, res) =
 // Create Stripe checkout session
 app.post('/api/create-checkout-session', async (req, res) => {
     try {
-        // Get the base URL from environment variable or request
-        const baseURL = process.env.NODE_ENV === 'production' 
-            ? process.env.BASE_URL || 'https://bossibilities-1.onrender.com'
+        // Simplified base URL logic for Render deployment
+        const baseURL = process.env.NODE_ENV === 'production'
+            ? 'https://bossibilities-1.onrender.com'  // Hardcode the production URL
             : `${req.protocol}://${req.get('host')}`;
 
+        console.log('Environment:', process.env.NODE_ENV);
         console.log('Creating checkout session with baseURL:', baseURL);
 
         const session = await stripe.checkout.sessions.create({
