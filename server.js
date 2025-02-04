@@ -7,6 +7,7 @@ if (process.env.NODE_ENV === 'production') {
 
 const express = require('express');
 const path = require('path');
+const fs = require('fs'); // Add fs module
 
 // Log the environment (remove in production)
 console.log('Environment:', process.env.NODE_ENV);
@@ -62,9 +63,12 @@ app.post('/webhook', express.raw({type: 'application/json'}), async (req, res) =
 // Create Stripe checkout session
 app.post('/api/create-checkout-session', async (req, res) => {
     try {
+        // Get the base URL from environment variable or request
         const baseURL = process.env.NODE_ENV === 'production' 
-            ? process.env.RENDER_EXTERNAL_URL || 'https://bossibilities-1.onrender.com'
+            ? 'https://bossibilities-1.onrender.com'
             : `${req.protocol}://${req.get('host')}`;
+
+        console.log('Creating checkout session with baseURL:', baseURL); // Add logging
 
         const session = await stripe.checkout.sessions.create({
             payment_method_types: ['card'],
@@ -80,7 +84,7 @@ app.post('/api/create-checkout-session', async (req, res) => {
                 quantity: 1,
             }],
             mode: 'payment',
-            success_url: `${baseURL}/success`,
+            success_url: `${baseURL}/success.html?session_id={CHECKOUT_SESSION_ID}`,
             cancel_url: `${baseURL}/ebook.html`,
         });
 
@@ -114,25 +118,40 @@ app.get('/api/verify-payment', async (req, res) => {
 
 // Protected ebook download route
 app.get('/api/ebook/:sessionId', async (req, res) => {
-  try {
-    const { sessionId } = req.params;
-    
-    // Verify the session with Stripe
-    const session = await stripe.checkout.sessions.retrieve(sessionId);
-    
-    if (session.payment_status !== 'paid') {
-      return res.status(403).json({ error: 'Payment verification failed' });
+    try {
+        const { sessionId } = req.params;
+        console.log('Received download request for session:', sessionId); // Add logging
+
+        // Verify the session exists and was paid
+        const session = await stripe.checkout.sessions.retrieve(sessionId);
+        console.log('Session status:', session.payment_status); // Add logging
+
+        if (session.payment_status !== 'paid') {
+            console.log('Payment not completed for session:', sessionId);
+            return res.status(400).send('Payment required');
+        }
+
+        // Path to your PDF file
+        const filePath = path.join(__dirname, 'ebooks', '7-Day-Mental-Ebook.pdf');
+        console.log('Attempting to send file:', filePath); // Add logging
+
+        // Check if file exists
+        if (!fs.existsSync(filePath)) {
+            console.error('File not found:', filePath);
+            return res.status(404).send('Ebook file not found');
+        }
+
+        // Set headers for file download
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Disposition', 'attachment; filename=7-Day-Mental-Ebook.pdf');
+
+        // Stream the file
+        const fileStream = fs.createReadStream(filePath);
+        fileStream.pipe(res);
+    } catch (err) {
+        console.error('Download Error:', err);
+        res.status(500).send('Error processing download');
     }
-    
-    const filePath = path.join(__dirname, 'protected', 'mens-7-day-mental-ebook-final3.pdf');
-    res.download(filePath);
-  } catch (error) {
-    console.error('Error in /api/ebook/:sessionId:', error);
-    res.status(500).json({ 
-      error: 'Failed to download file',
-      details: error.message 
-    });
-  }
 });
 
 app.get('*', (req, res, next) => {

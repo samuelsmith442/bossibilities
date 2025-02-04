@@ -127,7 +127,14 @@ function initializeSuccessPage() {
             downloadButton.addEventListener('click', function() {
                 // Get the current URL and use it as the base
                 const baseURL = window.location.origin;
-                window.location.href = `${baseURL}/api/ebook/${sessionId}`;
+                const downloadUrl = `${baseURL}/api/ebook/${sessionId}`;
+                console.log('Attempting download from:', downloadUrl); // Add logging
+                
+                // Create a hidden iframe for the download
+                const iframe = document.createElement('iframe');
+                iframe.style.display = 'none';
+                document.body.appendChild(iframe);
+                iframe.src = downloadUrl;
                 
                 // Disable button after click
                 downloadButton.disabled = true;
@@ -137,6 +144,7 @@ function initializeSuccessPage() {
                 setTimeout(() => {
                     downloadButton.disabled = false;
                     downloadButton.textContent = 'Download eBook Again';
+                    document.body.removeChild(iframe);
                 }, 5000);
             });
         }
