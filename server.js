@@ -19,8 +19,18 @@ const PORT = process.env.PORT || 3000;
 // Middleware
 app.use(express.json());
 
-// Serve static files
-app.use(express.static(path.join(__dirname)));
+// Serve static files from the root directory
+app.use(express.static(__dirname));
+
+// Serve static files from the public directory
+app.use('/public', express.static(path.join(__dirname, 'public')));
+
+// Enable CORS
+app.use((req, res, next) => {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+    next();
+});
 
 // Handle HTML routes
 app.get(['/', '/index.html'], (req, res) => {
@@ -99,32 +109,11 @@ app.post('/api/create-checkout-session', async (req, res) => {
     }
 });
 
-// Verify payment and serve protected file
-app.get('/api/verify-payment', async (req, res) => {
-  const { sessionId } = req.query;
-
-  try {
-    const session = await stripe.checkout.sessions.retrieve(sessionId);
-    
-    if (session.payment_status === 'paid') {
-      // Send success response with download URL
-      res.json({ 
-        success: true,
-        downloadUrl: `/api/ebook/${sessionId}`
-      });
-    } else {
-      res.status(400).json({ success: false, message: 'Payment not completed' });
-    }
-  } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
-  }
-});
-
-// Protected ebook download route
-app.get('/api/ebook/:sessionId', async (req, res) => {
+// Verify payment and return download URL
+app.get('/api/verify-payment/:sessionId', async (req, res) => {
     try {
         const { sessionId } = req.params;
-        console.log('Received download request for session:', sessionId);
+        console.log('Verifying payment for session:', sessionId);
 
         // Verify the session exists and was paid
         const session = await stripe.checkout.sessions.retrieve(sessionId);
@@ -132,80 +121,23 @@ app.get('/api/ebook/:sessionId', async (req, res) => {
 
         if (session.payment_status !== 'paid') {
             console.log('Payment not completed for session:', sessionId);
-            return res.status(400).send('Payment required');
+            return res.status(400).json({ error: 'Payment required' });
         }
 
-        // Log the current directory and list files
-        console.log('Current directory:', __dirname);
-        try {
-            const files = fs.readdirSync(__dirname);
-            console.log('Files in current directory:', files);
-            
-            const publicDir = path.join(__dirname, 'public');
-            if (fs.existsSync(publicDir)) {
-                const publicFiles = fs.readdirSync(publicDir);
-                console.log('Files in public directory:', publicFiles);
-            } else {
-                console.error('Public directory does not exist:', publicDir);
-            }
-        } catch (err) {
-            console.error('Error listing directory:', err);
-        }
-
-        // Path to your PDF file in the public directory
-        const filePath = path.join(__dirname, 'public', 'mens-7-day-mental-ebook-final3.pdf');
-        console.log('Attempting to access file:', filePath);
-
-        // Check if file exists with detailed error
-        try {
-            const fileStats = fs.statSync(filePath);
-            console.log('File stats:', {
-                size: fileStats.size,
-                created: fileStats.birthtime,
-                modified: fileStats.mtime,
-                permissions: fileStats.mode
-            });
-        } catch (err) {
-            console.error('Error accessing file:', err);
-            return res.status(404).send('Ebook file not found. Error: ' + err.message);
-        }
-
-        // Set headers for file download
-        res.setHeader('Content-Type', 'application/pdf');
-        res.setHeader('Content-Disposition', 'attachment; filename="7-Day-Mental-Ebook.pdf"');
-
-        // Stream the file with error handling
-        const fileStream = fs.createReadStream(filePath);
-        
-        fileStream.on('error', (error) => {
-            console.error('Stream error:', error);
-            if (!res.headersSent) {
-                res.status(500).send('Error streaming file: ' + error.message);
-            }
-        });
-
-        fileStream.on('open', () => {
-            console.log('File stream opened successfully');
-        });
-
-        fileStream.on('end', () => {
-            console.log('File stream ended successfully');
-        });
-
-        fileStream.pipe(res);
+        // Generate download URL
+        const downloadUrl = `/public/mens-7-day-mental-ebook-final3.pdf`;
+        res.json({ downloadUrl });
     } catch (err) {
-        console.error('Download Error:', err);
-        if (!res.headersSent) {
-            res.status(500).send('Error processing download: ' + err.message);
-        }
+        console.error('Verification Error:', err);
+        res.status(500).json({ error: err.message });
     }
 });
 
 app.get('*', (req, res, next) => {
-    if (req.path.endsWith('.html')) {
-        res.sendFile(path.join(__dirname, req.path));
-    } else {
+    if (req.path.endsWith('.html') || req.path === '/') {
         next();
+    } else {
+        res.sendFile(path.join(__dirname, req.path));
     }
 });
 

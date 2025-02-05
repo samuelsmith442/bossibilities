@@ -135,41 +135,39 @@ function initializeSuccessPage() {
                 console.log('Download button clicked');
                 
                 try {
-                    // Get the current URL and use it as the base
-                    const baseURL = window.location.origin;
-                    const downloadUrl = `${baseURL}/api/ebook/${sessionId}`;
-                    console.log('Download URL:', downloadUrl);
-                    
                     // Disable button and show loading state
                     downloadButton.disabled = true;
-                    downloadButton.textContent = 'Starting Download...';
+                    downloadButton.textContent = 'Verifying Payment...';
 
-                    // Use fetch to check if the file is accessible
-                    fetch(downloadUrl)
-                        .then(response => {
-                            if (!response.ok) {
-                                throw new Error('Download failed');
+                    // First verify the payment
+                    fetch(`/api/verify-payment/${sessionId}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.error) {
+                                throw new Error(data.error);
                             }
-                            return response.blob();
-                        })
-                        .then(blob => {
-                            // Create a download link
-                            const url = window.URL.createObjectURL(blob);
-                            const a = document.createElement('a');
-                            a.style.display = 'none';
-                            a.href = url;
-                            a.download = '7-Day-Mental-Ebook.pdf';
-                            document.body.appendChild(a);
-                            a.click();
-                            window.URL.revokeObjectURL(url);
-                            document.body.removeChild(a);
                             
-                            // Update button state
-                            downloadButton.textContent = 'Download Started!';
+                            console.log('Download URL:', data.downloadUrl);
+                            
+                            // Create an anchor element for download
+                            const a = document.createElement('a');
+                            a.href = data.downloadUrl;
+                            a.download = '7-Day-Mental-Ebook.pdf'; // Suggest filename
+                            a.style.display = 'none';
+                            document.body.appendChild(a);
+                            
+                            // Trigger download
+                            a.click();
+                            
+                            // Clean up
                             setTimeout(() => {
-                                downloadButton.disabled = false;
-                                downloadButton.textContent = 'Download eBook Again';
-                            }, 5000);
+                                document.body.removeChild(a);
+                                downloadButton.textContent = 'Download Started!';
+                                setTimeout(() => {
+                                    downloadButton.disabled = false;
+                                    downloadButton.textContent = 'Download eBook Again';
+                                }, 3000);
+                            }, 1000);
                         })
                         .catch(error => {
                             console.error('Download error:', error);
