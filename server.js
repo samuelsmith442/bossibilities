@@ -135,40 +135,68 @@ app.get('/api/ebook/:sessionId', async (req, res) => {
             return res.status(400).send('Payment required');
         }
 
-        // Path to your PDF file in the protected folder
-        const filePath = path.join(__dirname, 'protected', 'mens-7-day-mental-ebook-final3.pdf');
-        console.log('Attempting to send file:', filePath);
-
-        // Check if file exists
-        if (!fs.existsSync(filePath)) {
-            console.error('File not found:', filePath);
-            return res.status(404).send('Ebook file not found');
+        // Log the current directory and list files
+        console.log('Current directory:', __dirname);
+        try {
+            const files = fs.readdirSync(__dirname);
+            console.log('Files in current directory:', files);
+            
+            const publicDir = path.join(__dirname, 'public');
+            if (fs.existsSync(publicDir)) {
+                const publicFiles = fs.readdirSync(publicDir);
+                console.log('Files in public directory:', publicFiles);
+            } else {
+                console.error('Public directory does not exist:', publicDir);
+            }
+        } catch (err) {
+            console.error('Error listing directory:', err);
         }
 
-        // Get file information
-        const stat = fs.statSync(filePath);
-        
+        // Path to your PDF file in the public directory
+        const filePath = path.join(__dirname, 'public', 'mens-7-day-mental-ebook-final3.pdf');
+        console.log('Attempting to access file:', filePath);
+
+        // Check if file exists with detailed error
+        try {
+            const fileStats = fs.statSync(filePath);
+            console.log('File stats:', {
+                size: fileStats.size,
+                created: fileStats.birthtime,
+                modified: fileStats.mtime,
+                permissions: fileStats.mode
+            });
+        } catch (err) {
+            console.error('Error accessing file:', err);
+            return res.status(404).send('Ebook file not found. Error: ' + err.message);
+        }
+
         // Set headers for file download
-        res.setHeader('Content-Length', stat.size);
         res.setHeader('Content-Type', 'application/pdf');
         res.setHeader('Content-Disposition', 'attachment; filename="7-Day-Mental-Ebook.pdf"');
-        res.setHeader('Cache-Control', 'no-cache');
-        res.setHeader('Accept-Ranges', 'bytes');
 
-        // Stream the file
+        // Stream the file with error handling
         const fileStream = fs.createReadStream(filePath);
+        
         fileStream.on('error', (error) => {
             console.error('Stream error:', error);
             if (!res.headersSent) {
-                res.status(500).send('Error streaming file');
+                res.status(500).send('Error streaming file: ' + error.message);
             }
+        });
+
+        fileStream.on('open', () => {
+            console.log('File stream opened successfully');
+        });
+
+        fileStream.on('end', () => {
+            console.log('File stream ended successfully');
         });
 
         fileStream.pipe(res);
     } catch (err) {
         console.error('Download Error:', err);
         if (!res.headersSent) {
-            res.status(500).send('Error processing download');
+            res.status(500).send('Error processing download: ' + err.message);
         }
     }
 });
