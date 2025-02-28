@@ -33,11 +33,6 @@ Options -Indexes
     ExpiresByType application/javascript "access plus 1 month"
 </IfModule>
 
-# Stan Store redirects
-# Redirect from Stan Store back to thank you page
-RewriteCond %{QUERY_STRING} (?:^|&)stan_store_purchase=complete(?:&|$)
-RewriteRule ^(.*)$ /thank-you.html? [L,R=302]
-
 # Preserve trailing slashes if present
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteRule ^(.*[^/])$ /$1/ [L,R=301]

@@ -2,17 +2,10 @@
   "hostinger": {
     "domain": "creativitywithbossibilities.com",
     "sslEnabled": true,
-    "redirects": [
-      {
-        "source": "/thank-you",
-        "destination": "/",
-        "type": 302
-      }
-    ]
+    "redirects": []
   },
   "stanStore": {
     "storeId": "your-stan-store-id",
-    "redirectUrl": "https://creativitywithbossibilities.com/thank-you",
     "productIds": []
   }
 }
