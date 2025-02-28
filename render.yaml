@@ -1,17 +1,9 @@
 services:
   - type: web
     name: bossibilities
-    env: node
+    env: static
     buildCommand: npm install
-    startCommand: node server.js
+    staticPublishPath: ./
     envVars:
-      - key: NODE_ENV
-        value: production
-      - key: PORT
-        value: 3000
-      - key: STRIPE_PUBLISHABLE_KEY
-        sync: false
-      - key: STRIPE_SECRET_KEY
-        sync: false
       - key: DOMAIN
         value: https://bossibilities.onrender.com

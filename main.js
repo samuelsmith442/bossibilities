@@ -5,37 +5,44 @@ document.addEventListener('DOMContentLoaded', function() {
     const navbar = document.querySelector('.navbar');
     const body = document.body;
 
-    // Add background on scroll
-    window.addEventListener('scroll', () => {
-        if (window.scrollY > 50) {
-            navbar.classList.add('scrolled');
-        } else {
-            navbar.classList.remove('scrolled');
+    // Set active class for current page
+    const currentPage = window.location.pathname.split('/').pop();
+    const navItems = document.querySelectorAll('#nav-links a');
+    
+    navItems.forEach(item => {
+        const itemHref = item.getAttribute('href');
+        const hrefPage = itemHref.split('/').pop();
+        
+        if (currentPage === hrefPage || 
+            (currentPage === '' && hrefPage === 'index.html') || 
+            (currentPage === '/' && hrefPage === 'index.html')) {
+            item.classList.add('active');
         }
     });
 
+    // Add background on scroll
+    window.addEventListener('scroll', () => {
+        navbar.classList.toggle('scrolled', window.scrollY > 50);
+    });
+
     // Toggle mobile menu
+    const toggleMobileMenu = (show) => {
+        navLinks.classList.toggle('active', show);
+        mobileNavToggle.classList.toggle('is-active', show);
+        body.classList.toggle('menu-open', show);
+        mobileNavToggle.setAttribute('aria-expanded', show);
+    };
+
     mobileNavToggle.addEventListener('click', (e) => {
         e.preventDefault();
         e.stopPropagation();
-
-        const isExpanded = mobileNavToggle.getAttribute('aria-expanded') === 'true';
-        mobileNavToggle.setAttribute('aria-expanded', !isExpanded);
-        
-        if (window.innerWidth <= 768) {
-            navLinks.classList.toggle('active');
-            mobileNavToggle.classList.toggle('is-active');
-            body.classList.toggle('menu-open');
-        }
+        toggleMobileMenu(!navLinks.classList.contains('active'));
     });
 
     // Close mobile menu when clicking outside
     document.addEventListener('click', (e) => {
         if (!navbar.contains(e.target) && navLinks.classList.contains('active')) {
-            navLinks.classList.remove('active');
-            mobileNavToggle.setAttribute('aria-expanded', 'false');
-            mobileNavToggle.classList.remove('is-active');
-            body.classList.remove('menu-open');
+            toggleMobileMenu(false);
         }
     });
 
@@ -43,10 +50,7 @@ document.addEventListener('DOMContentLoaded', function() {
     navLinks.querySelectorAll('a').forEach(link => {
         link.addEventListener('click', () => {
             if (window.innerWidth <= 768) {
-                navLinks.classList.remove('active');
-                mobileNavToggle.setAttribute('aria-expanded', 'false');
-                mobileNavToggle.classList.remove('is-active');
-                body.classList.remove('menu-open');
+                toggleMobileMenu(false);
             }
         });
     });
@@ -54,246 +58,161 @@ document.addEventListener('DOMContentLoaded', function() {
     // Close mobile menu when window is resized to desktop size
     window.addEventListener('resize', () => {
         if (window.innerWidth > 768 && navLinks.classList.contains('active')) {
-            navLinks.classList.remove('active');
-            mobileNavToggle.setAttribute('aria-expanded', 'false');
-            mobileNavToggle.classList.remove('is-active');
-            body.classList.remove('menu-open');
+            toggleMobileMenu(false);
         }
     });
 
     // Close menu on escape key
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape' && navLinks.classList.contains('active')) {
-            navLinks.classList.remove('active');
-            mobileNavToggle.setAttribute('aria-expanded', 'false');
-            mobileNavToggle.classList.remove('is-active');
-            body.classList.remove('menu-open');
+            toggleMobileMenu(false);
         }
     });
-
-    // Shopping cart functionality
-    updateCartCount();
-
-    // Initialize success page if we're on the success page
-    if (window.location.pathname.includes('success')) {
-        console.log('On success page, initializing...');
-        initializeSuccessPage();
-    }
 
     // Initialize carousel if it exists
     const carousel = document.querySelector('.carousel-container');
     if (carousel) {
         initCarousel();
     }
-});
 
-// Shopping cart functionality
-function addToBasket(productId, price, imageUrl, name) {
-    let cart = JSON.parse(localStorage.getItem('cart')) || [];
-    cart.push({
-        id: productId,
-        price: price,
-        image: imageUrl,
-        name: name,
-        quantity: 1
-    });
-    localStorage.setItem('cart', JSON.stringify(cart));
-    updateCartCount();
-    alert('Item added to basket!');
-}
-
-function updateCartCount() {
-    const cart = JSON.parse(localStorage.getItem('cart')) || [];
-    const cartCount = cart.length;
-    const cartCountElement = document.querySelector('.cart-count');
-    if (cartCountElement) {
-        cartCountElement.textContent = cartCount;
-        cartCountElement.style.display = cartCount > 0 ? 'block' : 'none';
-    }
-}
-
-// Success page functionality
-function initializeSuccessPage() {
-    console.log('initializeSuccessPage called');
-    
-    // Get session_id from URL
-    const urlParams = new URLSearchParams(window.location.search);
-    const sessionId = urlParams.get('session_id');
-    console.log('Session ID:', sessionId);
-    
-    if (sessionId) {
-        const downloadSection = document.getElementById('download-section');
-        const downloadButton = document.getElementById('download-button');
-        console.log('Download section:', downloadSection);
-        console.log('Download button:', downloadButton);
-        
-        if (downloadSection && downloadButton) {
-            downloadSection.style.display = 'block';
-            
-            downloadButton.addEventListener('click', function(e) {
-                e.preventDefault();
-                console.log('Download button clicked');
-                
-                try {
-                    // Disable button and show loading state
-                    downloadButton.disabled = true;
-                    downloadButton.textContent = 'Verifying Payment...';
-
-                    // First verify the payment
-                    fetch(`/api/verify-payment/${sessionId}`)
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.error) {
-                                throw new Error(data.error);
-                            }
-                            
-                            console.log('Download URL:', data.downloadUrl);
-                            
-                            // Create an anchor element for download
-                            const a = document.createElement('a');
-                            a.href = data.downloadUrl;
-                            a.download = '7-Day-Mental-Ebook.pdf'; // Suggest filename
-                            a.style.display = 'none';
-                            document.body.appendChild(a);
-                            
-                            // Trigger download
-                            a.click();
-                            
-                            // Clean up
-                            setTimeout(() => {
-                                document.body.removeChild(a);
-                                downloadButton.textContent = 'Download Started!';
-                                setTimeout(() => {
-                                    downloadButton.disabled = false;
-                                    downloadButton.textContent = 'Download eBook Again';
-                                }, 3000);
-                            }, 1000);
-                        })
-                        .catch(error => {
-                            console.error('Download error:', error);
-                            downloadButton.disabled = false;
-                            downloadButton.textContent = 'Try Download Again';
-                            alert('Download failed. Please try again or contact support.');
-                        });
-                } catch (error) {
-                    console.error('Error initiating download:', error);
-                    downloadButton.disabled = false;
-                    downloadButton.textContent = 'Try Download Again';
-                    alert('Download failed. Please try again or contact support.');
+    // Scroll Animation Observer
+    const animateOnScroll = () => {
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('show');
                 }
             });
-        } else {
-            console.error('Download section or button not found');
-        }
-    } else {
-        console.error('No session ID found in URL');
-    }
-}
+        }, {
+            threshold: 0.1,
+            rootMargin: '0px'
+        });
 
-// Ebook download functionality
-function downloadEbook(bookId) {
-    try {
-        const viewerUrl = `viewer.html?bookId=${encodeURIComponent(bookId)}`;
-        window.open(viewerUrl, '_blank');
-    } catch (error) {
-        console.error('Error opening viewer:', error);
-        alert('Error opening the ebook viewer. Please try again.');
-    }
-}
+        document.querySelectorAll('.fade-in, .slide-in-left, .slide-in-right').forEach(element => {
+            observer.observe(element);
+        });
+    };
+
+    animateOnScroll();
+});
 
 // Initialize carousel if it exists
 function initCarousel() {
-    const track = document.querySelector('.carousel-track');
-    if (!track) return;
-
-    const slides = Array.from(track.children);
-    const nextButton = document.querySelector('.carousel-button.next');
-    const prevButton = document.querySelector('.carousel-button.prev');
-    const dotsNav = document.querySelector('.carousel-dots');
-    const dots = Array.from(dotsNav.children);
-
+    const carousel = document.querySelector('.carousel-container');
+    
+    if (!carousel) {
+        console.error('Carousel container not found');
+        return;
+    }
+    
+    console.log('Initializing carousel');
+    
+    const slides = carousel.querySelectorAll('.carousel-slide');
+    console.log('Slides found:', slides.length);
+    
+    // Log each slide's image src
+    slides.forEach((slide, index) => {
+        const img = slide.querySelector('img');
+        if (img) {
+            console.log(`Slide ${index} image src: ${img.src}`);
+            // Force image to be visible
+            img.style.display = 'block';
+            img.onerror = function() {
+                console.error(`Failed to load image for slide ${index}: ${img.src}`);
+            };
+            img.onload = function() {
+                console.log(`Successfully loaded image for slide ${index}: ${img.src}`);
+            };
+        } else {
+            console.error(`No image found in slide ${index}`);
+        }
+    });
+    
+    const dots = carousel.querySelectorAll('.dot');
+    const totalSlides = slides.length;
+    
+    console.log(`Found ${totalSlides} slides and ${dots.length} dots`);
+    
     let currentSlide = 0;
     let isTransitioning = false;
-    
-    slides[0].dataset.active = true;
-    dots[0].classList.add('active');
 
-    function updateSlidePosition() {
-        track.style.transform = `translateX(-${currentSlide * 100}%)`;
-    }
-
-    function updateDots() {
+    function updateCarousel() {
+        // Update slides
+        slides.forEach((slide, index) => {
+            const offset = (index - currentSlide) * 100;
+            console.log(`Setting transform for slide ${index} to translateX(${offset}%)`);
+            slide.style.transform = `translateX(${offset}%)`;
+            slide.style.opacity = index === currentSlide ? '1' : '0';
+        });
+        
+        // Update dots
         dots.forEach((dot, index) => {
             dot.classList.toggle('active', index === currentSlide);
         });
+        
+        console.log(`Current slide is now ${currentSlide}`);
     }
 
-    function moveToSlide(index) {
-        if (isTransitioning) return;
-        isTransitioning = true;
-
-        currentSlide = index;
-        updateSlidePosition();
-        updateDots();
-
-        setTimeout(() => {
-            isTransitioning = false;
-        }, 500);
-    }
-
-    function moveNext() {
-        const nextSlide = (currentSlide + 1) % slides.length;
-        moveToSlide(nextSlide);
-    }
-
-    function movePrev() {
-        const prevSlide = (currentSlide - 1 + slides.length) % slides.length;
-        moveToSlide(prevSlide);
-    }
-
-    nextButton.addEventListener('click', moveNext);
-    prevButton.addEventListener('click', movePrev);
-
-    dotsNav.addEventListener('click', e => {
-        const targetDot = e.target.closest('.dot');
-        if (!targetDot) return;
-        const targetIndex = dots.indexOf(targetDot);
-        moveToSlide(targetIndex);
-    });
-
-    let touchStartX = 0;
-    let touchEndX = 0;
-
-    track.addEventListener('touchstart', e => {
-        touchStartX = e.touches[0].clientX;
-    }, { passive: true });
-
-    track.addEventListener('touchmove', e => {
-        touchEndX = e.touches[0].clientX;
-    }, { passive: true });
-
-    track.addEventListener('touchend', () => {
-        const difference = touchStartX - touchEndX;
-        if (Math.abs(difference) > 50) {
-            if (difference > 0) {
-                moveNext();
-            } else {
-                movePrev();
-            }
+    function goToSlide(slideIndex) {
+        if (!isTransitioning) {
+            isTransitioning = true;
+            currentSlide = slideIndex;
+            console.log(`Going to slide ${slideIndex}`);
+            updateCarousel();
+            setTimeout(() => isTransitioning = false, 600);
         }
+    }
+
+    function nextSlide() {
+        goToSlide((currentSlide + 1) % totalSlides);
+    }
+
+    function prevSlide() {
+        goToSlide((currentSlide - 1 + totalSlides) % totalSlides);
+    }
+
+    // Add navigation buttons
+    const prevButton = carousel.querySelector('.prev');
+    const nextButton = carousel.querySelector('.next');
+
+    if (prevButton && nextButton) {
+        console.log('Adding button event listeners');
+        prevButton.addEventListener('click', function() {
+            console.log('Previous button clicked');
+            prevSlide();
+        });
+        nextButton.addEventListener('click', function() {
+            console.log('Next button clicked');
+            nextSlide();
+        });
+    } else {
+        console.error('Carousel buttons not found');
+    }
+
+    // Add dot navigation
+    dots.forEach((dot, index) => {
+        dot.addEventListener('click', () => {
+            console.log(`Dot ${index} clicked`);
+            goToSlide(index);
+        });
     });
 
-    let intervalId = setInterval(moveNext, 5000);
+    // Initialize carousel
+    updateCarousel();
+    console.log('Carousel initialized successfully');
 
-    track.addEventListener('mouseenter', () => clearInterval(intervalId));
-    track.addEventListener('mouseleave', () => {
-        clearInterval(intervalId);
-        intervalId = setInterval(moveNext, 5000);
+    // Auto-advance slides
+    let autoAdvance = setInterval(nextSlide, 5000);
+    
+    // Add event listener to pause auto-advance when hovering over carousel
+    carousel.addEventListener('mouseenter', () => {
+        clearInterval(autoAdvance);
+        console.log('Auto-advance paused');
     });
-
-    track.addEventListener('touchstart', () => clearInterval(intervalId));
-    track.addEventListener('touchend', () => {
-        clearInterval(intervalId);
-        intervalId = setInterval(moveNext, 5000);
+    
+    carousel.addEventListener('mouseleave', () => {
+        clearInterval(autoAdvance);
+        autoAdvance = setInterval(nextSlide, 5000);
+        console.log('Auto-advance resumed');
     });
 }
